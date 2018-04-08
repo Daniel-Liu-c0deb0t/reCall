@@ -19,7 +19,14 @@ public class reMap implements reArrayAccessible{
 	
 	@Override
 	public String toString(){
-		return val.toString().replace("=", ": ");
+		ArrayList<String> pairs = new ArrayList<>();
+		for(reObject key : val.keySet()){
+			String keyStr = key instanceof reString ? ("\"" + key.toString() + "\"") : key.toString();
+			String valStr = val.get(key) instanceof reString ?
+					("\"" + val.get(key).toString() + "\"") : val.get(key).toString();
+			pairs.add(keyStr + ": " + valStr);
+		}
+		return "{" + String.join(", ", pairs) + "}";
 	}
 	
 	@Override

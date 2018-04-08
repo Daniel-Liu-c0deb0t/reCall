@@ -18,7 +18,7 @@ public class Operators{
 		operators.add(new Symbol("-", 3, false, subtract, "subtract"));
 		operators.add(new Symbol("*", 2, false, multiply, "multiply"));
 		operators.add(new Symbol("/", 2, false, divide, "divide"));
-		operators.add(new Symbol("//", 2, false, floor_divide, "floor divide"));
+		operators.add(new Symbol("//", 2, false, floorDivide, "floor divide"));
 		operators.add(new Symbol("%", 2, false, mod, "modulo"));
 		operators.add(new Symbol("**", 1, false, pow, "exponentiate"));
 		

@@ -149,7 +149,11 @@ f = (n, CACHE = INF) ->
 The `INF` indicates that there should not be a limit to the cache size. The specified cache size gives an upper limit to the number of function calls that can be saved. It can be changed by specifying a variable, literal, or expression after the `CACHE` keyword. Also note that the `CACHE` keyword has to appear as the last "parameter" of the function.
 
 ## All Object Types
-
+Type | Examples | Uses | Notes
+--- | --- | --- | ---
+Number | `1`, `2`, `100`, `3.14`, `3 + 3.5`, `1e-9` | Represents a floating point (decimal) or integer number. | reCall offers arbitrary precision numbers! Note that for multiplicative operations (excluding floor division), the number is be rounded to at most 100 digits of **precision**, to limit the amount of memory consumed. That does not affect the scale (the exponent) of the numbers.
+String | `"Hello, world!"`, `"123"`, `"a" + "b"` | Represents a string of characters. | String behave like lists, but they are immutable.
+List | `[1, 2, 3]`, `[[1, 2], [3, 4]]`, `[1, 2] + [3, 4]` | Represents
 
 ## All Built-in Variables
 

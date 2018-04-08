@@ -2,7 +2,6 @@ package utils;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.math.MathContext;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -107,10 +106,13 @@ public class Utils{
 		return i;
 	}
 	
-	public static String join(reObject[] o, String d, int off){
+	public static String join(reObject[] o, String d, int off, boolean prettyStr){
 		StringBuilder s = new StringBuilder();
 		for(int i = off; i < o.length; i++){
-			s.append(o[i].toString() + d);
+			if(prettyStr && o[i] instanceof reString)
+				s.append("\"" + o[i].toString() + "\"" + d);
+			else
+				s.append(o[i].toString() + d);
 		}
 		if(s.length() > 0)
 			s.delete(s.length() - d.length(), s.length());
@@ -152,16 +154,16 @@ public class Utils{
 	
 	private static BigInteger maxExp = new BigInteger("999999999");
 	private static BigInteger two = new BigInteger("2");
-	public static BigDecimal intPow(BigDecimal a, BigInteger b, MathContext c){
+	public static BigDecimal intPow(BigDecimal a, BigInteger b){
 		if(b.compareTo(maxExp) <= 0){
-			return a.pow(b.intValue(), c);
+			return a.pow(b.intValue(), defaultMath);
 		}
 		
-		BigDecimal x = intPow(a, b.divide(two), c);
+		BigDecimal x = intPow(a, b.divide(two));
 		if(b.testBit(0)){ //odd
-			return a.multiply(x.pow(2, c), c);
+			return a.multiply(x.pow(2, defaultMath), defaultMath);
 		}else{ //even
-			return x.pow(2, c);
+			return x.pow(2, defaultMath);
 		}
 	}
 	

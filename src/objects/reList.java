@@ -18,7 +18,11 @@ public class reList implements reArrayAccessible, Comparable<reList>{
 	
 	@Override
 	public String toString(){
-		return val.toString();
+		ArrayList<String> s = new ArrayList<>();
+		for(reObject o : val){
+			s.add((o instanceof reString) ? ("\"" + o.toString() + "\"") : o.toString());
+		}
+		return "[" + String.join(", ", s) + "]";
 	}
 	
 	@Override

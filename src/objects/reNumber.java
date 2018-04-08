@@ -1,5 +1,7 @@
 package objects;
 
+import static core.Persistent.defaultMath;
+
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -40,7 +42,7 @@ public class reNumber implements reObject, Comparable<reNumber>{
 	
 	@Override
 	public String toString(){
-		return val.toPlainString();
+		return val.toString();
 	}
 	
 	@Override
@@ -70,6 +72,6 @@ public class reNumber implements reObject, Comparable<reNumber>{
 	}
 	
 	public static BigDecimal parseInt(String val){
-		return new BigDecimal(val);
+		return new BigDecimal(val, defaultMath);
 	}
 }

@@ -6,4 +6,4 @@ gcd = (a, b) ->
 
 a = 60
 b = 256
-write("The GCD of %d and %d is %d!" % [a, b, gcd(a, b)])
+write("The GCD of %.0f and %.0f is %.0f!" % [a, b, gcd(a, b)])

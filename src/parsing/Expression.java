@@ -381,7 +381,20 @@ public class Expression implements Statement{
 		LinkedList<Object> arr = new LinkedList<>();
 		arr.add(new StringBuilder());
 		for(int i = 0; i < s.length(); i++){
-			Symbol symbol = getOperatorStart(s.substring(i));
+			Symbol symbol = null;
+			
+			if(!isString){
+				symbol = getOperatorStart(s.substring(i));
+				if(symbol != null && i > 1 && Character.toLowerCase(s.charAt(i - 1)) == 'e'){ //handle scientific notation numbers
+					int j = i - 2;
+					while(j >= 0 && Character.isDigit(j)){
+						j--;
+					}
+					if(!isVarName(s.charAt(j) + "")){ //if scientific notation
+						symbol = null;
+					}
+				}
+			}
 			
 			if(!isString && (s.charAt(i) == '(' || s.charAt(i) == '[' || s.charAt(i) == '{')){
 				((StringBuilder)arr.getLast()).append(s.charAt(i));

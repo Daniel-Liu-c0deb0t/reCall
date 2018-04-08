@@ -16,13 +16,13 @@ fib = (n) ->
 	
 	return rec(n)
 
-n = 2000
-write("1st method: the %dth Fibonacci number is %d!" % [n, fib(n)])
+n = 1000
+write("1st method: the %.0fth Fibonacci number is %.0f!" % [n, fib(n)])
 
 
 # use automatic function caching
 
-n2 = 2000
+n2 = 1000
 
 fib2 = (n, CACHE = n2 + 1) ->
 	n <= 2 ?
@@ -30,4 +30,4 @@ fib2 = (n, CACHE = n2 + 1) ->
 	else
 		return fib2(n - 1) + fib2(n - 2)
 
-write("2nd method: the %dth Fibonacci number is %d!" % [n2, fib2(n2)])
+write("2nd method: the %.0fth Fibonacci number is %.0f!" % [n2, fib2(n2)])

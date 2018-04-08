@@ -4,7 +4,6 @@ import java.io.File;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.math.MathContext;
 import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -32,7 +31,7 @@ import parsing.Expression;
 public class Functions{
 	public static Function add = (params) -> {
 		if(params[0] instanceof reNumber && params[1] instanceof reNumber){
-			return new reNumber(((reNumber)params[0]).val.add(((reNumber)params[1]).val));
+			return new reNumber(((reNumber)params[0]).val.add(((reNumber)params[1]).val, defaultMath));
 		}else if(params[0] instanceof reList && params[1] instanceof reList){
 			ArrayList<reObject> res = new ArrayList<>(params[0].getListVal());
 			res.addAll(params[1].getListVal());
@@ -45,12 +44,12 @@ public class Functions{
 			return new reString(params[0].toString() + params[1].toString());
 		}
 		
-		throw new IllegalArgumentException("Bad arguments: \"" + Utils.join(params, ", ", 0) + "\"");
+		throw new IllegalArgumentException("Bad arguments: \"" + Utils.join(params, ", ", 0, true) + "\"");
 	};
 	
 	public static Function subtract = (params) -> {
 		if(params[0] instanceof reNumber && params[1] instanceof reNumber){
-			return new reNumber(((reNumber)params[0]).val.subtract(((reNumber)params[1]).val));
+			return new reNumber(((reNumber)params[0]).val.subtract(((reNumber)params[1]).val, defaultMath));
 		}else if(params[0] instanceof reList && params[1] instanceof reList){
 			ArrayList<reObject> res = new ArrayList<>(params[0].getListVal());
 			res.removeAll(params[1].getListVal());
@@ -63,17 +62,12 @@ public class Functions{
 			return new reMap(res);
 		}
 		
-		throw new IllegalArgumentException("Bad arguments: \"" + Utils.join(params, ", ", 0) + "\"");
+		throw new IllegalArgumentException("Bad arguments: \"" + Utils.join(params, ", ", 0, true) + "\"");
 	};
 	
 	public static Function multiply = (params) -> {
 		if(params[0] instanceof reNumber && params[1] instanceof reNumber){
-			reNumber a = (reNumber)params[0];
-			reNumber b = (reNumber)params[1];
-			if(reNumber.isInt(a) && reNumber.isInt(b))
-				return new reNumber(a.val.multiply(b.val));
-			else
-				return new reNumber(a.val.multiply(b.val, defaultMath));
+			return new reNumber(((reNumber)params[0]).val.multiply(((reNumber)params[1]).val, defaultMath));
 		}else if((params[0] instanceof reNumber && (params[1] instanceof reList || params[1] instanceof reString)) ||
 				params[1] instanceof reNumber && (params[0] instanceof reList || params[0] instanceof reString)){
 			if(params[1] instanceof reNumber && (params[0] instanceof reList || params[0] instanceof reString))
@@ -90,7 +84,7 @@ public class Functions{
 			return new reList(res);
 		}
 		
-		throw new IllegalArgumentException("Bad arguments: \"" + Utils.join(params, ", ", 0) + "\"");
+		throw new IllegalArgumentException("Bad arguments: \"" + Utils.join(params, ", ", 0, true) + "\"");
 	};
 	
 	public static Function divide = (params) -> {
@@ -108,20 +102,20 @@ public class Functions{
 			return new reList(res);
 		}
 		
-		throw new IllegalArgumentException("Bad arguments: \"" + Utils.join(params, ", ", 0) + "\"");
+		throw new IllegalArgumentException("Bad arguments: \"" + Utils.join(params, ", ", 0, true) + "\"");
 	};
 	
-	public static Function floor_divide = (params) -> {
+	public static Function floorDivide = (params) -> {
 		if(params[0] instanceof reNumber && params[1] instanceof reNumber){
-			return new reNumber(((reNumber)params[0]).val.divideToIntegralValue(((reNumber)params[1]).val));
+			return new reNumber(((reNumber)params[0]).val.divideToIntegralValue(((reNumber)params[1]).val, defaultMath));
 		}
 		
-		throw new IllegalArgumentException("Bad arguments: \"" + Utils.join(params, ", ", 0) + "\"");
+		throw new IllegalArgumentException("Bad arguments: \"" + Utils.join(params, ", ", 0, true) + "\"");
 	};
 	
 	public static Function mod = (params) -> {
 		if(params[0] instanceof reNumber && params[1] instanceof reNumber){
-			return new reNumber(((reNumber)params[0]).val.remainder(((reNumber)params[1]).val));
+			return new reNumber(((reNumber)params[0]).val.remainder(((reNumber)params[1]).val, defaultMath));
 		}else if(params[0] instanceof reString && params[1] instanceof reList){
 			ArrayList<reObject> arr = params[1].getListVal();
 			Object[] res = new Object[arr.size()];
@@ -129,11 +123,7 @@ public class Functions{
 			for(int i = 0; i < arr.size(); i++){
 				reObject o = arr.get(i);
 				if(o instanceof reNumber){
-					if(reNumber.isInt((reNumber)o)){
-						res[i] = ((reNumber)o).val.toBigInteger();
-					}else{ //if the number is not an int, then use strings
-						res[i] = o.toString();
-					}
+					res[i] = ((reNumber)o).val;
 				}else{
 					res[i] = o.toString();
 				}
@@ -142,7 +132,7 @@ public class Functions{
 			return new reString(String.format(params[0].toString(), res));
 		}
 		
-		throw new IllegalArgumentException("Bad arguments: \"" + Utils.join(params, ", ", 0) + "\"");
+		throw new IllegalArgumentException("Bad arguments: \"" + Utils.join(params, ", ", 0, true) + "\"");
 	};
 	
 	public static Function pow = (params) -> {
@@ -152,7 +142,7 @@ public class Functions{
 			boolean negative = false;
 			
 			if(a.signum() < 0 && b.abs().compareTo(BigDecimal.ONE) < 0)
-				throw new IllegalArgumentException("Bad arguments: \"" + Utils.join(params, ", ", 0) + "\"");
+				throw new IllegalArgumentException("Bad arguments: \"" + Utils.join(params, ", ", 0, true) + "\"");
 			
 			if(b.compareTo(BigDecimal.ZERO) == 0)
 				return new reNumber(BigDecimal.ONE);
@@ -163,17 +153,13 @@ public class Functions{
 			}
 			
 			//use a^(x + y) = a^x * a^y
-			BigDecimal remB = b.remainder(BigDecimal.ONE); //get the decimal part
-			BigDecimal intB = b.subtract(remB);
+			BigDecimal remB = b.remainder(BigDecimal.ONE, defaultMath); //get the decimal part
+			BigDecimal intB = b.subtract(remB, defaultMath);
 			BigDecimal res = BigDecimal.ONE;
 			
-			if(reNumber.isInt((reNumber)params[0]) && remB.compareTo(BigDecimal.ZERO) == 0){
-				res = Utils.intPow(a, intB.toBigInteger(), MathContext.UNLIMITED);
-			}else{
-				res = Utils.intPow(a, intB.toBigInteger(), defaultMath);
-				if(remB.compareTo(BigDecimal.ZERO) != 0)
-					res = res.multiply(BigDecimal.valueOf(Math.pow(a.doubleValue(), remB.doubleValue())), defaultMath);
-			}
+			res = Utils.intPow(a, intB.toBigInteger());
+			if(remB.compareTo(BigDecimal.ZERO) != 0)
+				res = res.multiply(BigDecimal.valueOf(Math.pow(a.doubleValue(), remB.doubleValue())), defaultMath);
 			
 			if(negative)
 				res = BigDecimal.ONE.divide(res, defaultMath);
@@ -181,7 +167,7 @@ public class Functions{
 			return new reNumber(res);
 		}
 		
-		throw new IllegalArgumentException("Bad arguments: \"" + Utils.join(params, ", ", 0) + "\"");
+		throw new IllegalArgumentException("Bad arguments: \"" + Utils.join(params, ", ", 0, true) + "\"");
 	};
 	
 	public static Function not = (params) -> {
@@ -240,10 +226,10 @@ public class Functions{
 		BigDecimal res = new BigDecimal(0);
 		for(reObject o : params){
 			if(o instanceof reNumber){
-				res = res.add(((reNumber)o).val);
+				res = res.add(((reNumber)o).val, defaultMath);
 			}else if(o instanceof reList){
 				ArrayList<reObject> list = o.getListVal();
-				res = res.add(((reNumber)Functions.sum.apply(list.toArray(new reObject[list.size()]))).val);
+				res = res.add(((reNumber)Functions.sum.apply(list.toArray(new reObject[list.size()]))).val, defaultMath);
 			}else{
 				throw new IllegalArgumentException("Bad argument: \"" + o.toString() + "\"");
 			}
@@ -364,9 +350,11 @@ public class Functions{
 			
 			return new reNumber(log10A.divide(log10B, defaultMath));
 		}else{
-			throw new IllegalArgumentException("Bad arguments: \"" + Utils.join(params, ", ", 0) + "\"");
+			throw new IllegalArgumentException("Bad arguments: \"" + Utils.join(params, ", ", 0, true) + "\"");
 		}
 	};
+	
+	private static BigDecimal two = new BigDecimal(2);
 	
 	public static Function sin = (params) -> {
 		if(params.length != 1)
@@ -374,9 +362,9 @@ public class Functions{
 		
 		if(params[0] instanceof reNumber){
 			return new reNumber(BigDecimal.valueOf(Math.sin(
-					((reNumber)params[0]).val.remainder(constPI.multiply(new BigDecimal(2), defaultMath)).doubleValue())));
+					((reNumber)params[0]).val.remainder(constPI.multiply(two, defaultMath)).doubleValue())));
 		}else{
-			throw new IllegalArgumentException("Bad arguments: \"" + Utils.join(params, ", ", 0) + "\"");
+			throw new IllegalArgumentException("Bad arguments: \"" + Utils.join(params, ", ", 0, true) + "\"");
 		}
 	};
 	
@@ -386,9 +374,9 @@ public class Functions{
 		
 		if(params[0] instanceof reNumber){
 			return new reNumber(BigDecimal.valueOf(Math.cos(
-					((reNumber)params[0]).val.remainder(constPI.multiply(new BigDecimal(2), defaultMath)).doubleValue())));
+					((reNumber)params[0]).val.remainder(constPI.multiply(two, defaultMath)).doubleValue())));
 		}else{
-			throw new IllegalArgumentException("Bad arguments: \"" + Utils.join(params, ", ", 0) + "\"");
+			throw new IllegalArgumentException("Bad arguments: \"" + Utils.join(params, ", ", 0, true) + "\"");
 		}
 	};
 	
@@ -398,9 +386,9 @@ public class Functions{
 		
 		if(params[0] instanceof reNumber){
 			return new reNumber(BigDecimal.valueOf(Math.tan(
-					((reNumber)params[0]).val.remainder(constPI.multiply(new BigDecimal(2), defaultMath)).doubleValue())));
+					((reNumber)params[0]).val.remainder(constPI.multiply(two, defaultMath)).doubleValue())));
 		}else{
-			throw new IllegalArgumentException("Bad arguments: \"" + Utils.join(params, ", ", 0) + "\"");
+			throw new IllegalArgumentException("Bad arguments: \"" + Utils.join(params, ", ", 0, true) + "\"");
 		}
 	};
 	
@@ -411,7 +399,7 @@ public class Functions{
 		if(params[0] instanceof reNumber){
 			return new reNumber(BigDecimal.valueOf(Math.asin(((reNumber)params[0]).val.doubleValue())));
 		}else{
-			throw new IllegalArgumentException("Bad arguments: \"" + Utils.join(params, ", ", 0) + "\"");
+			throw new IllegalArgumentException("Bad arguments: \"" + Utils.join(params, ", ", 0, true) + "\"");
 		}
 	};
 	
@@ -422,7 +410,7 @@ public class Functions{
 		if(params[0] instanceof reNumber){
 			return new reNumber(BigDecimal.valueOf(Math.acos(((reNumber)params[0]).val.doubleValue())));
 		}else{
-			throw new IllegalArgumentException("Bad arguments: \"" + Utils.join(params, ", ", 0) + "\"");
+			throw new IllegalArgumentException("Bad arguments: \"" + Utils.join(params, ", ", 0, true) + "\"");
 		}
 	};
 	
@@ -431,14 +419,14 @@ public class Functions{
 			if(params[0] instanceof reNumber){
 				return new reNumber(BigDecimal.valueOf(Math.atan(((reNumber)params[0]).val.doubleValue())));
 			}else{
-				throw new IllegalArgumentException("Bad argument: \"" + Utils.join(params, ", ", 0) + "\"");
+				throw new IllegalArgumentException("Bad argument: \"" + Utils.join(params, ", ", 0, true) + "\"");
 			}
 		}else if(params.length == 2){
 			if(params[0] instanceof reNumber && params[1] instanceof reNumber){
 				return new reNumber(BigDecimal.valueOf(Math.atan2(((reNumber)params[0]).val.doubleValue(),
 						((reNumber)params[1]).val.doubleValue())));
 			}else{
-				throw new IllegalArgumentException("Bad arguments: \"" + Utils.join(params, ", ", 0) + "\"");
+				throw new IllegalArgumentException("Bad arguments: \"" + Utils.join(params, ", ", 0, true) + "\"");
 			}
 		}else{
 			throw new IllegalArgumentException("Only 1 or 2 parameter(s) allowed!");
@@ -448,7 +436,7 @@ public class Functions{
 	public static Function println = (params) -> {
 		if(params.length >= 1 && params[0] instanceof reFileWriter){
 			try{
-				((reFileWriter)params[0]).println(Utils.join(params, " ", 1));
+				((reFileWriter)params[0]).println(Utils.join(params, " ", 1, false));
 			}catch(IOException e){
 				Utils.handleException(e, "An error occured while writing to file!");
 			}
@@ -461,7 +449,7 @@ public class Functions{
 					e.printStackTrace();
 				}
 			}else{
-				System.out.println(Utils.join(params, " ", 0));
+				System.out.println(Utils.join(params, " ", 0, false));
 			}
 		}
 		return null;
@@ -634,12 +622,12 @@ public class Functions{
 		if(params[0] instanceof reNumber && params[1] instanceof reNumber){
 			BigDecimal min = ((reNumber)params[0]).val.min(((reNumber)params[1]).val);
 			BigDecimal max = ((reNumber)params[0]).val.max(((reNumber)params[1]).val);
-			BigDecimal rand = min.add(max.subtract(min).multiply(
-					BigDecimal.valueOf(ThreadLocalRandom.current().nextDouble())), defaultMath);
+			BigDecimal rand = min.add(max.subtract(min, defaultMath).multiply(
+					BigDecimal.valueOf(ThreadLocalRandom.current().nextDouble()), defaultMath), defaultMath);
 			
 			return new reNumber(rand.setScale(0, RoundingMode.FLOOR));
 		}else{
-			throw new IllegalArgumentException("Bad arguments: \"" + Utils.join(params, ", ", 0) + "\"");
+			throw new IllegalArgumentException("Bad arguments: \"" + Utils.join(params, ", ", 0, true) + "\"");
 		}
 	};
 	
@@ -650,12 +638,12 @@ public class Functions{
 		if(params[0] instanceof reNumber && params[1] instanceof reNumber){
 			BigDecimal min = ((reNumber)params[0]).val.min(((reNumber)params[1]).val);
 			BigDecimal max = ((reNumber)params[0]).val.max(((reNumber)params[1]).val);
-			BigDecimal rand = min.add(max.subtract(min).multiply(
-					BigDecimal.valueOf(ThreadLocalRandom.current().nextDouble())), defaultMath);
+			BigDecimal rand = min.add(max.subtract(min, defaultMath).multiply(
+					BigDecimal.valueOf(ThreadLocalRandom.current().nextDouble()), defaultMath), defaultMath);
 			
 			return new reNumber(rand);
 		}else{
-			throw new IllegalArgumentException("Bad arguments: \"" + Utils.join(params, ", ", 0) + "\"");
+			throw new IllegalArgumentException("Bad arguments: \"" + Utils.join(params, ", ", 0, true) + "\"");
 		}
 	};
 	
@@ -687,7 +675,7 @@ public class Functions{
 				Collections.sort(res, (a, b) -> ((reNumber)((reFunction)params[1]).apply(new reObject[]{a, b})).val.signum());
 				return new reList(res);
 			}else{
-				throw new IllegalArgumentException("Bad arguments: \"" + Utils.join(params, ", ", 0) + "\"");
+				throw new IllegalArgumentException("Bad arguments: \"" + Utils.join(params, ", ", 0, true) + "\"");
 			}
 		}else{
 			throw new IllegalArgumentException("Only 1 or 2 parameter(s) allowed!");
@@ -746,7 +734,7 @@ public class Functions{
 			
 			return new reList(res);
 		}else{
-			throw new IllegalArgumentException("Bad arguments: \"" + Utils.join(params, ", ", 0) + "\"");
+			throw new IllegalArgumentException("Bad arguments: \"" + Utils.join(params, ", ", 0, true) + "\"");
 		}
 	};
 	
@@ -765,7 +753,7 @@ public class Functions{
 				res.remove(((reNumber)params[1]).val.intValue());
 				return new reList(res);
 			}else{
-				throw new IllegalArgumentException("Bad arguments: \"" + Utils.join(params, ", ", 0) + "\"");
+				throw new IllegalArgumentException("Bad arguments: \"" + Utils.join(params, ", ", 0, true) + "\"");
 			}
 		}else{
 			throw new IllegalArgumentException("Only 1 or 2 parameter(s) allowed!");
@@ -781,7 +769,7 @@ public class Functions{
 			Utils.swap(res, ((reNumber)params[1]).val.intValue(), ((reNumber)params[2]).val.intValue());
 			return new reList(res);
 		}else{
-			throw new IllegalArgumentException("Bad arguments: \"" + Utils.join(params, ", ", 0) + "\"");
+			throw new IllegalArgumentException("Bad arguments: \"" + Utils.join(params, ", ", 0, true) + "\"");
 		}
 	};
 	
@@ -796,7 +784,7 @@ public class Functions{
 		}else if(params[0] instanceof reString && params[1] instanceof reString){
 			return new reNumber(params[0].toString().contains(params[1].toString()) ? BigDecimal.ONE : BigDecimal.ZERO);
 		}else{
-			throw new IllegalArgumentException("Bad arguments: \"" + Utils.join(params, ", ", 0) + "\"");
+			throw new IllegalArgumentException("Bad arguments: \"" + Utils.join(params, ", ", 0, true) + "\"");
 		}
 	};
 	
@@ -809,7 +797,7 @@ public class Functions{
 		}else if(params[0] instanceof reString && params[1] instanceof reString){
 			return new reNumber(new BigDecimal(params[0].toString().indexOf(params[1].toString())));
 		}else{
-			throw new IllegalArgumentException("Bad arguments: \"" + Utils.join(params, ", ", 0) + "\"");
+			throw new IllegalArgumentException("Bad arguments: \"" + Utils.join(params, ", ", 0, true) + "\"");
 		}
 	};
 	
@@ -842,7 +830,7 @@ public class Functions{
 			}
 			return new reList(res);
 		}else{
-			throw new IllegalArgumentException("Bad arguments: \"" + Utils.join(params, ", ", 0) + "\"");
+			throw new IllegalArgumentException("Bad arguments: \"" + Utils.join(params, ", ", 0, true) + "\"");
 		}
 	};
 	
@@ -860,7 +848,7 @@ public class Functions{
 			}
 			return new reList(res);
 		}else{
-			throw new IllegalArgumentException("Bad arguments: \"" + Utils.join(params, ", ", 0) + "\"");
+			throw new IllegalArgumentException("Bad arguments: \"" + Utils.join(params, ", ", 0, true) + "\"");
 		}
 	};
 	
@@ -879,7 +867,7 @@ public class Functions{
 			}
 			return res;
 		}else{
-			throw new IllegalArgumentException("Bad arguments: \"" + Utils.join(params, ", ", 0) + "\"");
+			throw new IllegalArgumentException("Bad arguments: \"" + Utils.join(params, ", ", 0, true) + "\"");
 		}
 	};
 	
@@ -906,7 +894,7 @@ public class Functions{
 			}
 			return curr;
 		}else{
-			throw new IllegalArgumentException("Bad arguments: \"" + Utils.join(params, ", ", 0) + "\"");
+			throw new IllegalArgumentException("Bad arguments: \"" + Utils.join(params, ", ", 0, true) + "\"");
 		}
 	};
 	
@@ -935,7 +923,7 @@ public class Functions{
 			}
 			return new reList(res);
 		}else{
-			throw new IllegalArgumentException("Bad arguments: \"" + Utils.join(params, ", ", 0) + "\"");
+			throw new IllegalArgumentException("Bad arguments: \"" + Utils.join(params, ", ", 0, true) + "\"");
 		}
 	};
 	
@@ -946,7 +934,7 @@ public class Functions{
 		if(params[0] instanceof reNumber && params[1] instanceof reNumber){
 			return new reNumber(((reNumber)params[0]).val.setScale(((reNumber)params[1]).val.intValue(), defaultRounding));
 		}else{
-			throw new IllegalArgumentException("Bad arguments: \"" + Utils.join(params, ", ", 0) + "\"");
+			throw new IllegalArgumentException("Bad arguments: \"" + Utils.join(params, ", ", 0, true) + "\"");
 		}
 	};
 	
@@ -993,7 +981,7 @@ public class Functions{
 			return new reWindow(params[0].toString(), ((reNumber)params[1]).val.intValue(),
 					((reNumber)params[2]).val.intValue(), ((reNumber)params[3]).val.intValue(), (reFunction)params[4]);
 		}else{
-			throw new IllegalArgumentException("Bad arguments: \"" + Utils.join(params, ", ", 0) + "\"");
+			throw new IllegalArgumentException("Bad arguments: \"" + Utils.join(params, ", ", 0, true) + "\"");
 		}
 	};
 	
@@ -1005,7 +993,7 @@ public class Functions{
 			((reWindow)params[0]).refresh();
 			return null;
 		}else{
-			throw new IllegalArgumentException("Bad argument: \"" + Utils.join(params, ", ", 0) + "\"");
+			throw new IllegalArgumentException("Bad argument: \"" + Utils.join(params, ", ", 0, true) + "\"");
 		}
 	};
 	
@@ -1017,7 +1005,7 @@ public class Functions{
 			int line = ((reNumber)params[0]).val.intValue();
 			return Expression.recursiveCalc(Utils.removeSpaces(params[1].toString()), null, line, line, line);
 		}else{
-			throw new IllegalArgumentException("Bad argument: \"" + Utils.join(params, ", ", 1) + "\"");
+			throw new IllegalArgumentException("Bad argument: \"" + Utils.join(params, ", ", 1, true) + "\"");
 		}
 	};
 	
@@ -1030,7 +1018,7 @@ public class Functions{
 			res.isRegex = true;
 			return res;
 		}else{
-			throw new IllegalArgumentException("Bad argument: \"" + Utils.join(params, ", ", 0) + "\"");
+			throw new IllegalArgumentException("Bad argument: \"" + Utils.join(params, ", ", 0, true) + "\"");
 		}
 	};
 	
@@ -1046,7 +1034,7 @@ public class Functions{
 				return new reString(params[0].toString().replace(before.toString(), params[2].toString()));
 			}
 		}else{
-			throw new IllegalArgumentException("Bad arguments: \"" + Utils.join(params, ", ", 0) + "\"");
+			throw new IllegalArgumentException("Bad arguments: \"" + Utils.join(params, ", ", 0, true) + "\"");
 		}
 	};
 	
@@ -1074,10 +1062,10 @@ public class Functions{
 					return new reList(new ArrayList<reObject>());
 				}
 			}else{
-				throw new IllegalArgumentException("Bad arguments: \"" + Utils.join(params, ", ", 0) + "\"");
+				throw new IllegalArgumentException("Bad arguments: \"" + Utils.join(params, ", ", 0, true) + "\"");
 			}
 		}else{
-			throw new IllegalArgumentException("Bad arguments: \"" + Utils.join(params, ", ", 0) + "\"");
+			throw new IllegalArgumentException("Bad arguments: \"" + Utils.join(params, ", ", 0, true) + "\"");
 		}
 	};
 	
