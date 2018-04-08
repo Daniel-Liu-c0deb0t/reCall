@@ -5,8 +5,11 @@ import java.util.Arrays;
 
 public class reString implements reArrayAccessible, Comparable<reString>{
 	public String val;
+	public boolean isRegex;
 	
 	public reString(String val){
+		val = val.replace("\\n", "\n"); //handle newlines
+		val = val.replace("\\\n", "\\n"); //handle escaped backslashes
 		this.val = val;
 	}
 	
@@ -31,8 +34,19 @@ public class reString implements reArrayAccessible, Comparable<reString>{
 			return false;
 		if(getClass() != o.getClass())
 			return false;
-		if(!val.equals(o.toString()))
+		
+		reString s = (reString)o;
+		if((isRegex || s.isRegex) && (!isRegex || !s.isRegex)){ //only one can be a regex
+			String regex = isRegex ? val : s.val;
+			String text = isRegex ? s.val : val;
+			
+			if(!text.matches(regex)){
+				return false;
+			}
+		}else if(!val.equals(o.toString())){
 			return false;
+		}
+		
 		return true;
 	}
 	

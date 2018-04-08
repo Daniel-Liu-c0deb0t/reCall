@@ -133,8 +133,8 @@ public class Utils{
 		}else if((a instanceof reString && b instanceof reString) ||
 				((a instanceof reString || b instanceof reString) &&
 				(a instanceof reNumber || b instanceof reNumber))){
-			a = a instanceof reString ? (reString)a : new reString(a + "");
-			b = b instanceof reString ? (reString)b : new reString(b + "");
+			a = a instanceof reString ? (reString)a : new reString(a.toString());
+			b = b instanceof reString ? (reString)b : new reString(b.toString());
 			return ((reString)a).compareTo((reString)b);
 		}else if(a instanceof reList && b instanceof reList){
 			return ((reList)a).compareTo((reList)b);

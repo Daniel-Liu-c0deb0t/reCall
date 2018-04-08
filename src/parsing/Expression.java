@@ -190,6 +190,8 @@ public class Expression implements Statement{
 				ArrayList<reObject> indexes = new ArrayList<>();
 				for(int i = lIdx; i < s.length(); i++){
 					if(s.charAt(i) == '"') isString = !isString;
+					else if(!isString && (s.charAt(i) == '(' || s.charAt(i) == '{')) count++;
+					else if(!isString && (s.charAt(i) == ')' || s.charAt(i) == '}')) count--;
 					else if(!isString && s.charAt(i) == '['){
 						count++;
 						if(count == 1){

@@ -21,7 +21,7 @@ The following commands can be added to redirect the input and output.
 `--error` or `-e`: Redirect the stderr to a file. Again, specify a file path after.
 
 ## reCall Syntax
-reCall works on statements and objects. Objects can be defined or changed by statements. Some statement can even redirect the flow of the code. Code can be directly written in a text file and ran using the interpreter. Note that spaces do not matter, unless they are indents.
+reCall works on statements and objects. Objects can be defined or changed by statements. Some statement can even redirect the flow of the code. Code can be directly written in a text file and ran using the interpreter. Note that spaces do not matter, unless they are indents at the start of each line. Also, variables and functions names are case sensitive!
 
 ### Variables and Operators
 There are many different types of objects that can be created and manipulated in reCall. Here are the basic types: `string`, `number`, `list`, and `map`. For example, a literal number is just written out that number's value in the code. A literal two would look like `2`. A literal string (a bunch of characters) would look like `"hello world!"`.
@@ -92,7 +92,7 @@ Of course, the else blocks are optional. The booleans can be expressions, variab
 
 Since reCall does not have boolean values, numbers are used to represent booleans. 0 is false, and everything else is true. Some objects can evaluate to a boolean value. For example, an empty list or an empty string is false. Comparison operators produces boolean values (`0 == 1` produces 0, obviously).
 
-If an if/else statement is needed in one line, then the ternary operator variant of the if/else statement can be used. It is basically the same thing as the usual if/else: `1 == 1 ? "if boolean is true" : "if boolean is false"`. That whole statement, when evaluated, will produce the string `"if boolean is true"`.
+If an if/else statement is needed in one line, then the ternary operator variant of the if/else statement can be used. It is basically the same thing as the usual if/else: `1 == 1 ? "if boolean is true" else "if boolean is false"`. That whole statement, when evaluated, will produce the string `"if boolean is true"`.
 
 Each block of code has its own scope. This means that variables created within an if/else block **cannot** be accessed outside of it, while the code inside the if/else block can access variables defined outside of it. However, changes applied to variables outside of the if/else block will still stick.
 
@@ -132,7 +132,7 @@ add = (a, b) -> # simple addition function
 ```
 When a return is encountered, the function will halt and return to where it was called from, ignoring any code that comes after within the function. Returns are required if functions that produces a value is needed.
 
-Lambda or inline functions are functions that can only take up one line of code in reCall, similar to the ternary operator. They can be encorporated into expressions or function calls. For example:
+Lambda or inline functions are functions that can only take up one line of code in reCall, similar to the ternary operator. They can be encorporated into expressions or function calls. Lambda functions have an implicit return, so the `return` keyword is not needed at all. For example:
 ```
 f = (n) -> n + 1
 write(f(1)) # output: 2
@@ -146,7 +146,7 @@ A cool feature for functions that do not depend on the global state (it only use
 f = (n, CACHE = INF) ->
 	# do something here
 ```
-The `INF` indicates that there should not be a limit to the cache size. That can be changed by specifying a variable, literal, or expression there. The `CACHE` keyword has to appear as the last "parameter" of the function.
+The `INF` indicates that there should not be a limit to the cache size. The specified cache size gives an upper limit to the number of function calls that can be saved. It can be changed by specifying a variable, literal, or expression after the `CACHE` keyword. Also note that the `CACHE` keyword has to appear as the last "parameter" of the function.
 
 ## All Object Types
 

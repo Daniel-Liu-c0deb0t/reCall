@@ -10,6 +10,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.imageio.ImageIO;
 
@@ -95,7 +97,8 @@ public class Functions{
 		if(params[0] instanceof reNumber && params[1] instanceof reNumber){
 			return new reNumber(((reNumber)params[0]).val.divide(((reNumber)params[1]).val, defaultMath));
 		}else if(params[0] instanceof reString && params[1] instanceof reString){
-			String[] s = params[0].toString().split(params[1].toString());
+			String[] s = params[0].toString().split(((reString)params[1]).isRegex ?
+					params[1].toString() : Pattern.quote(params[1].toString()));
 			ArrayList<reObject> res = new ArrayList<>();
 			
 			for(int i = 0; i < s.length; i++){
@@ -186,7 +189,7 @@ public class Functions{
 	};
 	
 	public static Function cmpEq = (params) -> {
-		if(Utils.compare(params[0], params[1]) == 0){
+		if(params[0].equals(params[1])){
 			return new reNumber(BigDecimal.ONE);
 		}else{
 			return new reNumber(BigDecimal.ZERO);
@@ -194,7 +197,7 @@ public class Functions{
 	};
 	
 	public static Function cmpNotEq = (params) -> {
-		if(Utils.compare(params[0], params[1]) != 0){
+		if(!params[0].equals(params[1])){
 			return new reNumber(BigDecimal.ONE);
 		}else{
 			return new reNumber(BigDecimal.ZERO);
@@ -1007,7 +1010,7 @@ public class Functions{
 	};
 	
 	public static Function eval = (params) -> {
-		if(params.length != 2)
+		if(params.length != 2) //eval has one extra parameter
 			throw new IllegalArgumentException("Only 1 parameter(s) allowed!");
 		
 		if(params[1] instanceof reString){ //the first argument is only used to pass along the line number
@@ -1015,6 +1018,66 @@ public class Functions{
 			return Expression.recursiveCalc(Utils.removeSpaces(params[1].toString()), null, line, line, line);
 		}else{
 			throw new IllegalArgumentException("Bad argument: \"" + Utils.join(params, ", ", 1) + "\"");
+		}
+	};
+	
+	public static Function regex = (params) -> {
+		if(params.length != 1)
+			throw new IllegalArgumentException("Only 1 parameter(s) allowed!");
+		
+		if(params[0] instanceof reString){
+			reString res = (reString)((reString)params[0]).deepClone();
+			res.isRegex = true;
+			return res;
+		}else{
+			throw new IllegalArgumentException("Bad argument: \"" + Utils.join(params, ", ", 0) + "\"");
+		}
+	};
+	
+	public static Function replace = (params) -> {
+		if(params.length != 3)
+			throw new IllegalArgumentException("Only 3 parameter(s) allowed!");
+		
+		if(params[0] instanceof reString && params[1] instanceof reString && params[2] instanceof reString){
+			reString before = (reString)params[1];
+			if(before.isRegex){
+				return new reString(params[0].toString().replaceAll(before.toString(), params[2].toString()));
+			}else{
+				return new reString(params[0].toString().replace(before.toString(), params[2].toString()));
+			}
+		}else{
+			throw new IllegalArgumentException("Bad arguments: \"" + Utils.join(params, ", ", 0) + "\"");
+		}
+	};
+	
+	public static Function matchGroups = (params) -> {
+		if(params.length != 2)
+			throw new IllegalArgumentException("Only 2 parameter(s) allowed!");
+		
+		if(params[0] instanceof reString && params[1] instanceof reString){
+			reString s1 = (reString)params[0];
+			reString s2 = (reString)params[1];
+			
+			if((s1.isRegex || s2.isRegex) && (!s1.isRegex || !s2.isRegex)){ //only one string is regex
+				String regex = s1.isRegex ? s1.val : s2.val;
+				String text = s1.isRegex ? s2.val : s1.val;
+				Pattern p = Pattern.compile(regex);
+				Matcher m = p.matcher(text);
+				
+				if(m.matches()){
+					ArrayList<reObject> res = new ArrayList<>();
+					for(int i = 0; i < m.groupCount(); i++){
+						res.add(new reString(m.group(i + 1)));
+					}
+					return new reList(res);
+				}else{
+					return new reList(new ArrayList<reObject>());
+				}
+			}else{
+				throw new IllegalArgumentException("Bad arguments: \"" + Utils.join(params, ", ", 0) + "\"");
+			}
+		}else{
+			throw new IllegalArgumentException("Bad arguments: \"" + Utils.join(params, ", ", 0) + "\"");
 		}
 	};
 	
@@ -1026,8 +1089,8 @@ public class Functions{
 		
 		functions.put("max", new DefaultFunction(max, "calculates the max of all input parameters"));
 		functions.put("min", new DefaultFunction(min, "calculates the min of all input parameters"));
-		functions.put("argMax", new DefaultFunction(argMax, "calculates the index of the max the array"));
-		functions.put("argMin", new DefaultFunction(argMin, "calculates the index of the min the array"));
+		functions.put("argMax", new DefaultFunction(argMax, "calculates the index of the max in the array"));
+		functions.put("argMin", new DefaultFunction(argMin, "calculates the index of the min in the array"));
 		functions.put("sum", new DefaultFunction(sum, "calculates the sum of all input parameters"));
 		functions.put("abs", new DefaultFunction(abs, "calculates the absolute value of the input"));
 		functions.put("log", new DefaultFunction(log, "calculates the log of base b of a, for parameters b, a"));
@@ -1070,6 +1133,13 @@ public class Functions{
 		
 		functions.put("window", new DefaultFunction(createWindow, "creates a new drawable window"));
 		functions.put("refresh", new DefaultFunction(refreshWindow, "refreshes/redraws a window"));
+		
+		//the function, eval(), is not listed here!
+		//it is separately handled!
+		
+		functions.put("regex", new DefaultFunction(regex, "converts a string to a regex"));
+		functions.put("replace", new DefaultFunction(replace, "replaces all of occurences of one string (can be regex) with another"));
+		functions.put("matchGroups", new DefaultFunction(matchGroups, "creates a list of captured groups if matching"));
 	}
 	
 	public static class DefaultFunction{
