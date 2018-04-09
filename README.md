@@ -5,13 +5,15 @@ reCall is a dynamically typed language with imperative and functional capabiliti
 
 The interpreter is written in pure Java, and it uses recursion two levels of recursion to parse the code: one for if/else and function blocks, and another for evaluating expressions.
 
-**Important note! reCall is not very optimized, so it can be very slow or memory hungry in some cases!**
+**Important note! reCall is not very optimized, so it probably should not be used in production. However, it can be used for automating and scripting purposes.**
 
 ## Using the Interpreter
 Run the interpreter by downloading the compiled `reCall_interpreter.jar` and using the following command:
 ```
 java -Xss10m -jar reCall_interpreter.jar /path/to/source/code.re
 ```
+To test that the installation works, run the `.jar` without any source code file and it will show a greeting.
+
 The source code file should end with `.re`, although any extension will work fine. The `-Xss` command for the Java Runtime Environment allows the program to use more memory for the stack size. reCall is quite memory hungry when doing recursion, so the `-Xss` command is almost necessary.
 
 The following commands can be added to redirect the input and output.
@@ -24,6 +26,23 @@ The following commands can be added to redirect the input and output.
 
 ## reCall Syntax
 reCall works on statements and objects. Objects can be defined or changed by statements. Some statement can even redirect the flow of the code. Code can be directly written in a text file and ran using the interpreter. Note that spaces do not matter, unless they are indents at the start of each line. Also, variables and functions names are case sensitive!
+
+To get a taste of how reCall looks like, here is the basic hello world program:
+```
+write("Hello, world!")
+```
+And here is a more complicated example for finding the factorial of a number:
+```
+fact = (n) ->
+	n == 1 ? # base case
+		return 1
+	
+	return n * fact(n - 1)
+
+n = 250
+write("The factorial of %.0f is %.0f!" % [n, fact(n)])
+```
+Read on for the full tutorial and other details!
 
 ### Variables and Operators
 There are many different types of objects that can be created and manipulated in reCall. Here are the basic types: `string`, `number`, `list`, and `map`. For example, a literal number is just written out that number's value in the code. A literal two would look like `2`. A literal string (a bunch of characters) would look like `"hello world!"`.
@@ -153,29 +172,19 @@ The `INF` indicates that there should not be a limit to the cache size. The spec
 ## All Object Types
 Type | Examples | Use | Notes
 --- | --- | --- | ---
-
-Number | `1`, `2`, `100`, `3.14`, `3 + 3.5`, `1e-9` | Represents a floating point (decimal) or integer number. | reCall offers *almost* arbitrary precision numbers! Numbers can only have up to 500 digits of precision, but the exponent (scale) can be very, very large (or small)!
-
+Number | `1`, `2`, `100`, `3.14`, `3 + 3.5`, `1e-9` | Represents a floating point (decimal) or integer number. | reCall offers *almost* arbitrary precision numbers! Numbers can only have up to 100 digits of precision (a double in Java has around 15), but the exponent (scale) can be very, very large (or small)!
 String | `"Hello, world!"`, `"123"`, `"a" + "b"` | Represents a string of characters. | String behave like lists, but they are immutable.
-
 List | `[1, 2, 3]`, `[[1, 2], [3, 4]]`, `[1, 2] + [3, 4]`, `["hello", 1, 1.234]` | Represents a list objects that can be any type. | Lists can be changed using the `listName[index]` operation.
-
 Map | `{"hello": 1, 2: 3, 4: [1, 2, 3]}` | Represents key-value pairs, where each value can be accessed by its corresponding (unique) key. | Maps can be changed using the `mapName[key]` operation. The value can be omitted, in which case the dummy value of `0` will be used.
-
 File Reader | `reader = fileReader(...)` | Represents a file reader object for a file. | Look at the functions section for functions that act of a file reader.
-
 File Writer | `writer = fileWriter(...)` | Represents a file writer object for a file. | Look at the functions section for functions that act of a file writer.
-
 Function | `square = (a) -> a * a` | Represents a function that can be called. | Functions can call itself to loop some code. However, the call stack size might get too big and the program can crash. This only happens when there are **a lot** of repeated function calls.
-
 Window | `win = window(...)` | Creates a rudimentary window that can be drawn on. | Drawing is very, very simple. For each pixel, the specified callback function is used to determine the color at that pixel.
 
 ## All Built-in Variables
 Name | Value | Use
 --- | --- | ---
-
 PI | 3.1415... | 100 digits of PI... for fun?
-
 E | 2.7182... | 100 digits of E... for more fun?
 
 ## All Operator in Decreasing Precedance

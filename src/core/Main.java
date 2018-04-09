@@ -24,6 +24,6 @@ public class Main{
 		if(srcFile == null)
 			System.out.println("Hi! This is the reCall interpreter!");
 		else
-			Interpreter.run(Interpreter.parse(new FileInputStream(srcFile)), -1, Integer.MAX_VALUE);
+			Interpreter.run(Interpreter.parse(new FileInputStream(srcFile)), 0, Integer.MAX_VALUE);
 	}
 }

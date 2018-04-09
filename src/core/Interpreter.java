@@ -104,21 +104,58 @@ public class Interpreter{
 					s = Operators.getOperatorEnd(line.substring(0, idxEq));
 				
 				//try to check for if/else and function def endings
-				while(!indentsIf.isEmpty() && indent <= indentsIf.peek()){
-					if(elifs.peek() instanceof IfStatement)
-						((IfStatement)elifs.peek()).end = prog.peek().get(prog.peek().size() - 1).getLineNum();
-					else
-						((ElseStatement)elifs.peek()).end = prog.peek().get(prog.peek().size() - 1).getLineNum();
-					prog.peek().add(new EndStatement());
-					indentsIf.pop();
-				}
-				while(!indentsFunc.isEmpty() && indent <= indentsFunc.peek()){
-					int end = findLastLine(prog.peek());
-					prog.peek().add(new EndStatement());
-					ArrayList<Statement> res = prog.pop();
-					((FunctionStatement)prog.peek().get(prog.peek().size() - 1)).lines = res;
-					((FunctionStatement)prog.peek().get(prog.peek().size() - 1)).end = end;
-					indentsFunc.pop();
+				while((!indentsIf.isEmpty() && indent <= indentsIf.peek()) ||
+						(!indentsFunc.isEmpty() && indent <= indentsFunc.peek())){
+					if(!indentsFunc.isEmpty() && indent <= indentsFunc.peek() &&
+							!indentsIf.isEmpty() && indent <= indentsIf.peek()){
+						if(indentsIf.peek() < indentsFunc.peek()){
+							int end;
+							if(prog.peek().get(prog.peek().size() - 1) instanceof FunctionStatement)
+								end = ((FunctionStatement)prog.peek().get(prog.peek().size() - 1)).end;
+							else
+								end = prog.peek().get(prog.peek().size() - 1).getLineNum();
+							prog.peek().add(new EndStatement());
+							ArrayList<Statement> res = prog.pop();
+							((FunctionStatement)prog.peek().get(prog.peek().size() - 1)).lines = res;
+							((FunctionStatement)prog.peek().get(prog.peek().size() - 1)).end = end;
+							indentsFunc.pop();
+						}else{
+							int end;
+							if(prog.peek().get(prog.peek().size() - 1) instanceof FunctionStatement)
+								end = ((FunctionStatement)prog.peek().get(prog.peek().size() - 1)).end;
+							else
+								end = prog.peek().get(prog.peek().size() - 1).getLineNum();
+							if(elifs.peek() instanceof IfStatement)
+								((IfStatement)elifs.peek()).end = end;
+							else
+								((ElseStatement)elifs.peek()).end = end;
+							prog.peek().add(new EndStatement());
+							indentsIf.pop();
+						}
+					}else if(!indentsIf.isEmpty() && indent <= indentsIf.peek()){
+						int end;
+						if(prog.peek().get(prog.peek().size() - 1) instanceof FunctionStatement)
+							end = ((FunctionStatement)prog.peek().get(prog.peek().size() - 1)).end;
+						else
+							end = prog.peek().get(prog.peek().size() - 1).getLineNum();
+						if(elifs.peek() instanceof IfStatement)
+							((IfStatement)elifs.peek()).end = end;
+						else
+							((ElseStatement)elifs.peek()).end = end;
+						prog.peek().add(new EndStatement());
+						indentsIf.pop();
+					}else{
+						int end;
+						if(prog.peek().get(prog.peek().size() - 1) instanceof FunctionStatement)
+							end = ((FunctionStatement)prog.peek().get(prog.peek().size() - 1)).end;
+						else
+							end = prog.peek().get(prog.peek().size() - 1).getLineNum();
+						prog.peek().add(new EndStatement());
+						ArrayList<Statement> res = prog.pop();
+						((FunctionStatement)prog.peek().get(prog.peek().size() - 1)).lines = res;
+						((FunctionStatement)prog.peek().get(prog.peek().size() - 1)).end = end;
+						indentsFunc.pop();
+					}
 				}
 				
 				if(line.startsWith("return")){
@@ -167,21 +204,56 @@ public class Interpreter{
 			handleException(e, "An error occured while reading the source file!");
 		}
 		
-		while(!indentsIf.isEmpty()){
-			if(elifs.peek() instanceof IfStatement)
-				((IfStatement)elifs.peek()).end = prog.peek().get(prog.peek().size() - 1).getLineNum();
-			else
-				((ElseStatement)elifs.peek()).end = prog.peek().get(prog.peek().size() - 1).getLineNum();
-			prog.peek().add(new EndStatement());
-			indentsIf.pop();
-		}
-		while(!indentsFunc.isEmpty()){
-			int end = findLastLine(prog.peek());
-			prog.peek().add(new EndStatement());
-			ArrayList<Statement> res = prog.pop();
-			((FunctionStatement)prog.peek().get(prog.peek().size() - 1)).lines = res;
-			((FunctionStatement)prog.peek().get(prog.peek().size() - 1)).end = end;
-			indentsFunc.pop();
+		while(!indentsIf.isEmpty() || !indentsFunc.isEmpty()){
+			if(!indentsFunc.isEmpty() && !indentsIf.isEmpty()){
+				if(indentsIf.peek() < indentsFunc.peek()){
+					int end;
+					if(prog.peek().get(prog.peek().size() - 1) instanceof FunctionStatement)
+						end = ((FunctionStatement)prog.peek().get(prog.peek().size() - 1)).end;
+					else
+						end = prog.peek().get(prog.peek().size() - 1).getLineNum();
+					prog.peek().add(new EndStatement());
+					ArrayList<Statement> res = prog.pop();
+					((FunctionStatement)prog.peek().get(prog.peek().size() - 1)).lines = res;
+					((FunctionStatement)prog.peek().get(prog.peek().size() - 1)).end = end;
+					indentsFunc.pop();
+				}else{
+					int end;
+					if(prog.peek().get(prog.peek().size() - 1) instanceof FunctionStatement)
+						end = ((FunctionStatement)prog.peek().get(prog.peek().size() - 1)).end;
+					else
+						end = prog.peek().get(prog.peek().size() - 1).getLineNum();
+					if(elifs.peek() instanceof IfStatement)
+						((IfStatement)elifs.peek()).end = end;
+					else
+						((ElseStatement)elifs.peek()).end = end;
+					prog.peek().add(new EndStatement());
+					indentsIf.pop();
+				}
+			}else if(!indentsIf.isEmpty()){
+				int end;
+				if(prog.peek().get(prog.peek().size() - 1) instanceof FunctionStatement)
+					end = ((FunctionStatement)prog.peek().get(prog.peek().size() - 1)).end;
+				else
+					end = prog.peek().get(prog.peek().size() - 1).getLineNum();
+				if(elifs.peek() instanceof IfStatement)
+					((IfStatement)elifs.peek()).end = end;
+				else
+					((ElseStatement)elifs.peek()).end = end;
+				prog.peek().add(new EndStatement());
+				indentsIf.pop();
+			}else{
+				int end;
+				if(prog.peek().get(prog.peek().size() - 1) instanceof FunctionStatement)
+					end = ((FunctionStatement)prog.peek().get(prog.peek().size() - 1)).end;
+				else
+					end = prog.peek().get(prog.peek().size() - 1).getLineNum();
+				prog.peek().add(new EndStatement());
+				ArrayList<Statement> res = prog.pop();
+				((FunctionStatement)prog.peek().get(prog.peek().size() - 1)).lines = res;
+				((FunctionStatement)prog.peek().get(prog.peek().size() - 1)).end = end;
+				indentsFunc.pop();
+			}
 		}
 		prog.peek().add(new EndStatement());
 		

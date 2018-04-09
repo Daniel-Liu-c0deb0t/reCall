@@ -9,13 +9,13 @@ m = (x, y, iter) ->
 	return [c / 1.5, c / 1.5, c]
 
 iter = 100
-width = 500
-height = 500
+width = 300
+height = 300
 
 mapRange = (x, a1, b1, a2, b2) ->
 	return (x - a1) / (b1 - a1) * (b2 - a2) + a2
 
-win = window("Mandelbrot", width, height, 2, \
+win = window("Mandelbrot", width, height, 3, \
 			(x, y) -> m(mapRange(x, 0, width, -2, 0.5), mapRange(y, 0, height, -1.25, 1.25), iter))
 
 write("mandelbrot.png", "png", win)
