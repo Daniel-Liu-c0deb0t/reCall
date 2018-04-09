@@ -440,6 +440,11 @@ public class Expression implements Statement{
 						String str = (String)it.next();
 						it.remove();
 						it.add("(-1)*" + str); //multiply by -1
+					}else if(((Symbol)n).op.equals("+")){ //unary plus
+						it.remove();
+						it.previous();
+						it.remove();
+						it.next();
 					}else if(((Symbol)n).op.equals("!")){ //unary not
 						it.remove();
 						it.previous();

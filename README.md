@@ -62,7 +62,7 @@ b = a + 1 # b = 4
 c = a + b + 1 # c = 8
 d = 2 ** 10 # d = 1024
 ```
-Any binary operator can be placed before the `=` sign to simplfy the code. For example, `a = a + 1` and `a += 1` yields the same result.
+Any binary operator can be placed before the `=` sign to simplify the code. For example, `a = a + 1` and `a += 1` yields the same result.
 
 ### Strings, Lists, and Maps
 String literals are defined with double quotes, which looks like this: `"hello"`. A string is basically a list of characters in order. These characters can be accessed, but they cannot be changed. This is to make strings behave like the immutable numbers. Changes to strings creates new strings.
@@ -200,26 +200,114 @@ E | 2.7182... | 100 digits of E... for more fun?
 ## All Operators
 Precedance | Operators | Description | Details
 --- | --- | --- | ---
-| `[]`, `{}`, `()` | Parantheses, function calls, list literals, map literals, etc. |
-| `-` | unary negation (eg. `-1`, `-3.5`) |
-| `!` | unary logical not (eg. `!1` = `0`, `!0` = `1`) |
-| `**` | exponentiate/power function. (eg. `2 ** 4` = `16`) |
-| `*` | multiply | Can also duplicate strings and arrays (performs a deep copy!, eg. `[1, 2, 3] * 2` = `[1, 2, 3, 1, 2, 3]`)
-| `/` | divide | Can also split one string by another (eg. `"hello world" / " "` = `["hello", "world"]`)
-| `//` | floor division | Divide, but round down (floor) to an integer
-| `%` | modulo/remainder | Can also be used in string formatting (eg. `"List: %s" % [1, 2, 3]` = `"List: [1, 2, 3]"`, usually `%s` (for strings) and `%f` (for numbers) are used)
-| `+` | addition | Can also be used to concatenate lists, strings, and merge maps.
-| `-` | subtraction | Can also be used to remove a item from a list or map. (eg. `[1, 2, 3] - [2, 3]` = `[1]`, {1: 2, 3: 4} - {1} = {3: 4})
-| `>`, `<`, `>=`, `<=` | greater than, less than, greater than or equal to, less than or equal to | Strings and numbers can be compared. Lists can also be compared. Strings and lists are compared by lexicographical order.
-| `==`, `!=` | equals, not equals | When matching two strings, one string can be a regex pattern. If both or none of the strings are regex then character by character matching is used.
-| `&&` | logical and | True only if both sides evaluate to true (non-zero) values. Note that this operator short circuits, so expressions separated by the `&&` are evaluated from left to right, and if one expression is false, it stops evaluating the others.
-| `||` | logical or | True if either side evaluates to true (non-zero) values. Note that this operator short circuits, so expressions separated by the `||` are evaluated from left to right, and if one expression is true, it stops evaluating the others.
-| `?` and `else` | ternary operator | Basically a one line, condensed if/else statement.
-| `=` and variants (`+=`, `*=`, etc.) | set operator | sets a variable or a list/map item to some value | Example: `a += 1` = `a = a + 1`.
+10 | `[]`, `{}`, `()` | Parantheses, function calls, list literals, map literals, etc. |
+9 | `-` and `+` | unary negation (eg. `-1`, `-3.5`) and unary plus | Note that this has higher precedance than the exponentiate operator!
+9 | `!` | unary logical not (eg. `!1` = `0`, `!0` = `1`) |
+8 | `**` | exponentiate/power function. (eg. `2 ** 4` = `16`) | This has lower precedance than the unary negation operator! (eg. `-1 ** 2` = `1`)
+7 | `*` | multiply | Can also duplicate strings and arrays (performs a deep copy!, eg. `[1, 2, 3] * 2` = `[1, 2, 3, 1, 2, 3]`)
+7 | `/` | divide | Can also split one string by another (eg. `"hello world" / " "` = `["hello", "world"]`). The delimiter string can be a regex pattern.
+7 | `//` | floor division | Divide, but round down (floor) to an integer
+7 | `%` | modulo/remainder | Can also be used in string formatting (eg. `"List: %s" % [1, 2, 3]` = `"List: [1, 2, 3]"`, usually `%s` (for strings) and `%f` (for numbers) are used)
+6 | `+` | addition | Can also be used to concatenate lists, strings, and merge maps.
+6 | `-` | subtraction | Can also be used to remove a item from a list or map. (eg. `[1, 2, 3] - [2, 3]` = `[1]`, {1: 2, 3: 4} - {1} = {3: 4})
+5 | `>`, `<`, `>=`, `<=` | greater than, less than, greater than or equal to, less than or equal to | Strings and numbers can be compared. Lists can also be compared. Strings and lists are compared by lexicographical order.
+4 | `==`, `!=` | equals, not equals | When matching two strings, one string can be a regex pattern. If both or none of the strings are regex then character by character matching is used.
+3 | `&&` | logical and | True only if both sides evaluate to true (non-zero) values. Note that this operator short circuits, so expressions separated by the `&&` are evaluated from left to right, and if one expression is false, it stops evaluating the others.
+2 | `||` | logical or | True if either side evaluates to true (non-zero) values. Note that this operator short circuits, so expressions separated by the `||` are evaluated from left to right, and if one expression is true, it stops evaluating the others.
+1 | `?` and `else` | ternary operator | Basically a one line, condensed if/else statement.
+0 | `=` and variants (`+=`, `*=`, etc.) | set operator | sets a variable or a list/map item to some value | Example: `a += 1` = `a = a + 1`.
 
 Other than `=` all other operators do no change the state of the object being operated on. A new object is created instead.
 
 ---
 
 ## All Built-in Functions
+Here, parameters are separated by commas, and ellipses mean that any number of parameters can be used. A function can return nothing. Parameters enclosed in `[]` are optional. The types accepted by the function are important!
 
+### Numerical Functions
+Function | Parameters | Returns | Uses
+--- | --- | --- | ---
+num | string `s` or number `n` | number | converts `s` to a number (num() of a number just returns a new number of the same value)
+round | number `a`, number `b` | number | rounds `a` to `b` number of decimal places
+max | number or list... | number | recursively finds the maximum value for all numbers and lists (recursively searches the lists)
+argMax | list `l` | number | finds the index of the maximum number in `l`
+min | number or list... | number | recursively finds the minimum value for all numbers and lists (recursively searches the lists)
+argMin | list `l` | number | finds the index of the minimum number in `l`
+sum | number or list... | number | recursively sums all numbers and lists (also recursively sums each list)
+abs | number `n` | number | finds the absolute value of `n`
+log | number `a`, number `b` | number | finds the log base a of b
+sin | number `angle` | number | finds the sine of `angle` in radians
+cos | number `angle` | number | finds the cosine of `angle` in radians
+tan | number `angle` | number | finds the tangent (sin/cos) of `angle` in radians
+asin | number `n` | number | finds the arcsine of `n`
+acos | number `n` | number | finds the arccosine of `n`
+atan | number `n` or number `a`, number `b` | number | finds the arctangent of either n or a and b (using two parameters allows a greater range of output values)
+
+Note that `log`, the trigonometric functions, and the `**` operator with fractional exponents do not produce high precision results. Usually 14-15 digits of precision can be expected. That also means that extremely large and extremely small numbers can have some problems.
+
+### Collection Related Functions
+Function | Parameters | Returns | Uses
+--- | --- | --- | ---
+len | list or map or string `c` | number | returns the length/size of `c`
+pop | list `l`[, number `i`] | list | removes the list element in `l`, or removes the element at index `i` in `l`
+swap | list `l`, number `i`, number `j` | list | swaps the elements at index `i` and `j`
+contains | list or map or string `c`, any object `o` (only strings if the first parameter is string) | boolean | checks if `c` contains `o`
+indexOf | list or string `c`, any object `o` (only strings if the first parameter is string) | number | finds the index of `o` in `c`, or `-1` if not found
+sort | list `l`[, function `f`] | sorts `l` in the elements natural ordering, or call `f` to compare pairs of items (`f` should take two parameters and return a negative value if the first value is less than the second, zero if they are equal, and a positive value if the second value is less than the first)
+count | list `l` | map | creates a map with all of the items in `l` as keys, and a counter counting how many duplicates for each item as values
+keyList | map `m` | list | creates a list containing all of the keys in `m`, in arbitrary order
+valList | map `m` | list | creates a list containing all of the values in `m`, in arbitrary order
+zip | list of lists `l` | list of lists | creates a new list where each item in the new list contains an item from each list in `l` (eg. `zip([[1, 2], [3, 4], [5, 6]])` = `[[1, 3, 5], [2, 4, 6]]`, this operation is also known as transposition)
+nextPerm | list `l` | list | creates a new list representing the next lexicographical permutation of `l` (this can be used to loop through permutations, make sure the initial list is sorted so it is in the lowest state)
+maskList | list `l`, number `n` | using the bits in `n` (which needs to be an integer), find a subset of `l` (this can be used to find all subsets of a list, by looping through each number from `0` to `len(list)`)
+
+### Random Related Functions
+Function | Parameters | Returns | Uses
+--- | --- | --- | ---
+randInt | number `a`, number `b` | number | returns a random integer between `a` and `b`
+randFloat | number `a`, number `b` | number | returns a random floating point number between `a` and `b`
+shuffle | list `l` | list | creates a new list that is a random permutation of `l`
+
+### Functional Functions
+Function | Parameters | Returns | Uses
+--- | --- | --- | ---
+map | list `l`, function `f` | list `l` | applies `f` to each element in `l`, and creates a new list with the values produces by `f` (`f` should take two parameters for the index and the list element, `f` can optionally return a new value)
+filter | list `l`, function `f` | list `l` | applies `f` to each element in `l`, and creates a list with elements that evaluate to true (non-zero value) when the `f` is called with it (`f` should take two parameters for the index and the list element, and it should return `0` if and only if the item should be removed)
+reduce | list `l`, function `f` | any object | applies the `f` cumulatively to pairs of elements in `l`, to produce a final result (`f` should accept two parameters and return a value based on those two parameters)
+generateList | any object `o`, function `f1`, function `f2` | list | generates a list by starting with `o`, while `f1` does not produce a false value, call `f2` to generate a new value (f1 and f2 should accept two parameters, an index and the previously generated element)
+generate | any object `o`, function `f1`, function `f2` | any object | generates an object by starting with `o`, while `f1` does not produce a false value, call `f2` to generate a new value (f1 and f2 should accept two parameters, an index and the previously generated element), this function, unlike `generateList`, does not save intermediate values
+
+### IO Related Functions
+Function | Parameters | Returns | Uses
+--- | --- | --- | ---
+write | any object... or file writer, any object... or string (path), string (format), window | nothing | either writes all parameters to the standard output stream, writes all parameters through a file writer to a file, or writes a window's image, in a specific format, to a file
+read | string `s` or file reader | string | either reads one line from the standard input stream after printing `s`, or reads one line from a file reader
+fileReader | string `path` | file reader | creates a file reader for the file denoted by `path`
+fileWriter | string `path` | file writer | creates a file writer for the file denoted by `path`
+hasNext | file reader | boolean | checks if the file reader has another line
+close | file reader or file writer | nothing | closes a file reader or writer (this needs to be done!)
+
+### Drawing Related Functions
+Function | Parameters | Returns | Uses
+--- | --- | --- | ---
+window | string `title`, number `width`, number `height`, number `scale`, function `f` | window | creates a window of size `width`, `height`, where each pixel has size `scale`, and `f` is called for each pixel to determine its color (`f` should accept two parameters, the x and y values of the pixel, and it should return a list with three items containing the color of the pixel, which are from 0 to 255)
+refresh | window | nothing | tells the window to redraw
+
+### Regex
+Function | Parameters | Returns | Uses
+--- | --- | --- | ---
+regex | string `s` | string | converts `s` to a regex pattern
+replace | string `text`, string `before`, string `after` | string | replaces all occurrences of `before` (can be regex) with `after` in `text`
+matchGroups | string `text`, string `regex` | list | creates a list containing all of the groups that are matched (if the text matches the regex, or else an empty list is returned)
+
+### Miscellaneous
+Function | Parameters | Returns | Uses
+--- | --- | --- | ---
+eval | string | any object | evaluates a single-line reCall **expression** and returns the value produced
+
+Note that none of the built-in functions changes the state of its parameters or anything outside of it. However, user defined callback functions can.
+
+## Tips
+- Use implicit loops (eg. `map`, `filter`, `reduce`, `generate`, etc.) instead of recursion to reduce memory needs
+- Use `\` at the very end of a line to tell the interpreter that the next line continues that line. This can be used make long, single-line statements multi-line
+- Use `\n` in strings to indicate a newline. To escape the `\n`, use `\\n`.
