@@ -5,12 +5,14 @@ reCall is a dynamically typed language with imperative and functional capabiliti
 
 The interpreter is written in pure Java, and it uses recursion two levels of recursion to parse the code: one for if/else and function blocks, and another for evaluating expressions.
 
+**Important note! reCall is not very optimized, so it can be very slow or memory hungry in some cases!**
+
 ## Using the Interpreter
 Run the interpreter by downloading the compiled `reCall_interpreter.jar` and using the following command:
 ```
-java -jar reCall_interpreter.jar /path/to/source/code.re
+java -Xss10m -jar reCall_interpreter.jar /path/to/source/code.re
 ```
-The source code file should end with `.re`, although any extension will work fine.
+The source code file should end with `.re`, although any extension will work fine. The `-Xss` command for the Java Runtime Environment allows the program to use more memory for the stack size. reCall is quite memory hungry when doing recursion, so the `-Xss` command is almost necessary.
 
 The following commands can be added to redirect the input and output.
 
@@ -44,7 +46,7 @@ String literals are defined with double quotes, which looks like this: `"hello"`
 
 List literals are defined like this: `[1, 2, 3]` (items are separated by commas). They can also be multidimentional. For example, this is valid: `[1, 2, [3, 4]]`. Any object (other than functions) can be placed in a list. Lists maintain their items order, and they can be expanded or shrunk. An item can be accessed through its index in the list (indexed from 0).
 
-Map literals are defined like so: `{"key": "value", "key 2": 3}`. Each of the items (which are separated by commas) consists of a key-value pair. The main differences between lists and maps are that lists maintain their order while maps do no necessarily maintain their order. Also, maps are accessed with the key values, unlike the indexes using in lists.
+Map literals are defined like so: `{"key": "value", "key 2": 3}`. Each of the items (which are separated by commas) consists of a key-value pair. The main differences between lists and maps are that lists maintain their order while maps do no necessarily maintain their order. Also, maps are accessed with the key values, unlike the indexes using in lists. Every key needs to be unique in a map. To create a set, where values are not necessary, the colons and the values can be omitted to look like this: `{"item 1", "item 2", 3}`. Entries with and without values can be mixed. Keys without their corresponding values just have a dummy value of zero.
 
 All three of these can be accessed or directly changed (except strings) with `[]`. For strings and lists, an index is specified. For maps, the key is used. An example to make it clear:
 ```
@@ -149,14 +151,32 @@ f = (n, CACHE = INF) ->
 The `INF` indicates that there should not be a limit to the cache size. The specified cache size gives an upper limit to the number of function calls that can be saved. It can be changed by specifying a variable, literal, or expression after the `CACHE` keyword. Also note that the `CACHE` keyword has to appear as the last "parameter" of the function.
 
 ## All Object Types
-Type | Examples | Uses | Notes
+Type | Examples | Use | Notes
 --- | --- | --- | ---
-Number | `1`, `2`, `100`, `3.14`, `3 + 3.5`, `1e-9` | Represents a floating point (decimal) or integer number. | reCall offers arbitrary precision numbers! Note that for multiplicative operations (excluding floor division), the number is be rounded to at most 100 digits of **precision**, to limit the amount of memory consumed. That does not affect the scale (the exponent) of the numbers.
+
+Number | `1`, `2`, `100`, `3.14`, `3 + 3.5`, `1e-9` | Represents a floating point (decimal) or integer number. | reCall offers *almost* arbitrary precision numbers! Numbers can only have up to 500 digits of precision, but the exponent (scale) can be very, very large (or small)!
+
 String | `"Hello, world!"`, `"123"`, `"a" + "b"` | Represents a string of characters. | String behave like lists, but they are immutable.
-List | `[1, 2, 3]`, `[[1, 2], [3, 4]]`, `[1, 2] + [3, 4]` | Represents
+
+List | `[1, 2, 3]`, `[[1, 2], [3, 4]]`, `[1, 2] + [3, 4]`, `["hello", 1, 1.234]` | Represents a list objects that can be any type. | Lists can be changed using the `listName[index]` operation.
+
+Map | `{"hello": 1, 2: 3, 4: [1, 2, 3]}` | Represents key-value pairs, where each value can be accessed by its corresponding (unique) key. | Maps can be changed using the `mapName[key]` operation. The value can be omitted, in which case the dummy value of `0` will be used.
+
+File Reader | `reader = fileReader(...)` | Represents a file reader object for a file. | Look at the functions section for functions that act of a file reader.
+
+File Writer | `writer = fileWriter(...)` | Represents a file writer object for a file. | Look at the functions section for functions that act of a file writer.
+
+Function | `square = (a) -> a * a` | Represents a function that can be called. | Functions can call itself to loop some code. However, the call stack size might get too big and the program can crash. This only happens when there are **a lot** of repeated function calls.
+
+Window | `win = window(...)` | Creates a rudimentary window that can be drawn on. | Drawing is very, very simple. For each pixel, the specified callback function is used to determine the color at that pixel.
 
 ## All Built-in Variables
+Name | Value | Use
+--- | --- | ---
 
+PI | 3.1415... | 100 digits of PI... for fun?
+
+E | 2.7182... | 100 digits of E... for more fun?
 
 ## All Operator in Decreasing Precedance
 

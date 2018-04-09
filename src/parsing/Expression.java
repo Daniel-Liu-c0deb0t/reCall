@@ -149,6 +149,7 @@ public class Expression implements Statement{
 							res.put(key, val);
 					}
 					prev = i + 1;
+					colon = -1;
 				}else if(!isString && count == 0 && s.charAt(i) == ':'){
 					key = recursiveCalc(s.substring(prev, i), s, start, end, lineNum);
 					colon = i + 1;
