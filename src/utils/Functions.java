@@ -68,10 +68,11 @@ public class Functions{
 	public static Function multiply = (params) -> {
 		if(params[0] instanceof reNumber && params[1] instanceof reNumber){
 			return new reNumber(((reNumber)params[0]).val.multiply(((reNumber)params[1]).val, defaultMath));
-		}else if((params[0] instanceof reNumber && (params[1] instanceof reList || params[1] instanceof reString)) ||
-				params[1] instanceof reNumber && (params[0] instanceof reList || params[0] instanceof reString)){
-			if(params[1] instanceof reNumber && (params[0] instanceof reList || params[0] instanceof reString))
+		}else if((params[0] instanceof reNumber && params[1] instanceof reList) ||
+				params[1] instanceof reNumber && params[0] instanceof reList){
+			if(params[1] instanceof reNumber && params[0] instanceof reList)
 				Utils.swap(params, 0, 1);
+			
 			ArrayList<reObject> res = new ArrayList<>();
 			
 			for(int i = 0; i < ((reNumber)params[0]).val.intValue(); i++){
@@ -82,6 +83,18 @@ public class Functions{
 			}
 			
 			return new reList(res);
+		}else if((params[0] instanceof reNumber && params[1] instanceof reString) ||
+				params[1] instanceof reNumber && params[0] instanceof reString){
+			if(params[1] instanceof reNumber && params[0] instanceof reString)
+				Utils.swap(params, 0, 1);
+			
+			StringBuilder res = new StringBuilder();
+			
+			for(int i = 0; i < ((reNumber)params[0]).val.intValue(); i++){
+				res.append(params[1].toString());
+			}
+			
+			return new reString(res.toString());
 		}
 		
 		throw new IllegalArgumentException("Bad arguments: \"" + Utils.join(params, ", ", 0, true) + "\"");

@@ -7,6 +7,8 @@ The interpreter is written in pure Java, and it uses recursion two levels of rec
 
 **Important note! reCall is not very optimized, so it probably should not be used in production. However, it can be used for automating and scripting purposes.**
 
+---
+
 ## Using the Interpreter
 Run the interpreter by downloading the compiled `reCall_interpreter.jar` and using the following command:
 ```
@@ -23,6 +25,8 @@ The following commands can be added to redirect the input and output.
 `--input` or `-i`: Change stdin to a file. Specify a file path after.
 
 `--error` or `-e`: Redirect the stderr to a file. Again, specify a file path after.
+
+---
 
 ## reCall Syntax
 reCall works on statements and objects. Objects can be defined or changed by statements. Some statement can even redirect the flow of the code. Code can be directly written in a text file and ran using the interpreter. Note that spaces do not matter, unless they are indents at the start of each line. Also, variables and functions names are case sensitive!
@@ -169,6 +173,8 @@ f = (n, CACHE = INF) ->
 ```
 The `INF` indicates that there should not be a limit to the cache size. The specified cache size gives an upper limit to the number of function calls that can be saved. It can be changed by specifying a variable, literal, or expression after the `CACHE` keyword. Also note that the `CACHE` keyword has to appear as the last "parameter" of the function.
 
+---
+
 ## All Object Types
 Type | Examples | Use | Notes
 --- | --- | --- | ---
@@ -181,14 +187,39 @@ File Writer | `writer = fileWriter(...)` | Represents a file writer object for a
 Function | `square = (a) -> a * a` | Represents a function that can be called. | Functions can call itself to loop some code. However, the call stack size might get too big and the program can crash. This only happens when there are **a lot** of repeated function calls.
 Window | `win = window(...)` | Creates a rudimentary window that can be drawn on. | Drawing is very, very simple. For each pixel, the specified callback function is used to determine the color at that pixel.
 
+---
+
 ## All Built-in Variables
 Name | Value | Use
 --- | --- | ---
 PI | 3.1415... | 100 digits of PI... for fun?
 E | 2.7182... | 100 digits of E... for more fun?
 
-## All Operator in Decreasing Precedance
+---
 
+## All Operators
+Precedance | Operators | Description | Details
+--- | --- | --- | ---
+| `[]`, `{}`, `()` | Parantheses, function calls, list literals, map literals, etc. |
+| `-` | unary negation (eg. `-1`, `-3.5`) |
+| `!` | unary logical not (eg. `!1` = `0`, `!0` = `1`) |
+| `**` | exponentiate/power function. (eg. `2 ** 4` = `16`) |
+| `*` | multiply | Can also duplicate strings and arrays (performs a deep copy!, eg. `[1, 2, 3] * 2` = `[1, 2, 3, 1, 2, 3]`)
+| `/` | divide | Can also split one string by another (eg. `"hello world" / " "` = `["hello", "world"]`)
+| `//` | floor division | Divide, but round down (floor) to an integer
+| `%` | modulo/remainder | Can also be used in string formatting (eg. `"List: %s" % [1, 2, 3]` = `"List: [1, 2, 3]"`, usually `%s` (for strings) and `%f` (for numbers) are used)
+| `+` | addition | Can also be used to concatenate lists, strings, and merge maps.
+| `-` | subtraction | Can also be used to remove a item from a list or map. (eg. `[1, 2, 3] - [2, 3]` = `[1]`, {1: 2, 3: 4} - {1} = {3: 4})
+| `>`, `<`, `>=`, `<=` | greater than, less than, greater than or equal to, less than or equal to | Strings and numbers can be compared. Lists can also be compared. Strings and lists are compared by lexicographical order.
+| `==`, `!=` | equals, not equals | When matching two strings, one string can be a regex pattern. If both or none of the strings are regex then character by character matching is used.
+| `&&` | logical and | True only if both sides evaluate to true (non-zero) values. Note that this operator short circuits, so expressions separated by the `&&` are evaluated from left to right, and if one expression is false, it stops evaluating the others.
+| `||` | logical or | True if either side evaluates to true (non-zero) values. Note that this operator short circuits, so expressions separated by the `||` are evaluated from left to right, and if one expression is true, it stops evaluating the others.
+| `?` and `else` | ternary operator | Basically a one line, condensed if/else statement.
+| `=` and variants (`+=`, `*=`, etc.) | set operator | sets a variable or a list/map item to some value | Example: `a += 1` = `a = a + 1`.
+
+Other than `=` all other operators do no change the state of the object being operated on. A new object is created instead.
+
+---
 
 ## All Built-in Functions
 
