@@ -62,7 +62,14 @@ b = a + 1 # b = 4
 c = a + b + 1 # c = 8
 d = 2 ** 10 # d = 1024
 ```
-Any binary operator can be placed before the `=` sign to simplify the code. For example, `a = a + 1` and `a += 1` yields the same result.
+Binary operators such as `+`, `-`, `*`, `/`, `//`, `%`, `||`, and `&&` can be placed before the `=` sign to simplify the code. For example, `a = a + 1` and `a += 1` yields the same result.
+
+The `=` sign that is used for setting variables can be used within expressions, so the following is perfectly fine:
+```
+a = 1
+b = a += 1 # b = 2, a = 2
+```
+Note that the expression to the right of the `=` is evaluated first.
 
 ### Strings, Lists, and Maps
 String literals are defined with double quotes, which looks like this: `"hello"`. A string is basically a list of characters in order. These characters can be accessed, but they cannot be changed. This is to make strings behave like the immutable numbers. Changes to strings creates new strings.
@@ -101,6 +108,15 @@ s[1:-1] # "ello worl" negative indexes starts counting from the last element
 
 l[::2] # [1, 3, 5]
 l[:-2] # [1, 2, 3]
+```
+Lists can be unpacked into variables. The length of the list and the number of variables must exactly match, or else and error will occur. Using the same syntax, multiple variables can also be set to the same value. For example:
+```
+l = ["hello", "world"]
+a, b = l # list unpacking, a = "hello", b = "world"
+a, b = 2 # sets both a and b to 2
+a = b = 2 # does the same thing as above
+
+l[0], l[1] = [l[1], l[0]] # swapping two elements within the list l
 ```
 
 ### Branching (if/else)
@@ -214,20 +230,21 @@ Precedance | Operators | Description | Details
 4 | `==`, `!=` | equals, not equals | When matching two strings, one string can be a regex pattern. If both or none of the strings are regex then character by character matching is used.
 3 | `&&` | logical and | True only if both sides evaluate to true (non-zero) values. Note that this operator short circuits, so expressions separated by the `&&` are evaluated from left to right, and if one expression is false, it stops evaluating the others.
 2 | `||` | logical or | True if either side evaluates to true (non-zero) values. Note that this operator short circuits, so expressions separated by the `||` are evaluated from left to right, and if one expression is true, it stops evaluating the others.
+1 | `() ->` | lambda/inline function definition | Basically a one line, condensed function.
 1 | `?` and `else` | ternary operator | Basically a one line, condensed if/else statement.
 0 | `=` and variants (`+=`, `*=`, etc.) | set operator | sets a variable or a list/map item to some value | Example: `a += 1` = `a = a + 1`.
 
-Other than `=` all other operators do no change the state of the object being operated on. A new object is created instead.
+Other than `=`, all other operators do no change the state of the object being operated on. A new object is created instead.
 
 ---
 
 ## All Built-in Functions
 Here, parameters are separated by commas, and ellipses mean that any number of parameters can be used. A function can return nothing. Parameters enclosed in `[]` are optional. The types accepted by the function are important!
 
-### Numerical Functions
+### Numeric Functions
 Function | Parameters | Returns | Uses
 --- | --- | --- | ---
-num | string `s` or number `n` | number | converts `s` to a number (num() of a number just returns a new number of the same value)
+num | any object `o`[, radix `r`] | number | converts `o` to a number (if `o` is a string, parses the string with the optional radix `r`)
 round | number `a`, number `b` | number | rounds `a` to `b` number of decimal places
 max | number or list... | number | recursively finds the maximum value for all numbers and lists (recursively searches the lists)
 argMax | list `l` | number | finds the index of the maximum number in `l`
@@ -245,12 +262,20 @@ atan | number `n` or number `a`, number `b` | number | finds the arctangent of e
 
 Note that `log`, the trigonometric functions, and the `**` operator with fractional exponents do not produce high precision results. Usually 14-15 digits of precision can be expected. That also means that extremely large and extremely small numbers can have some problems.
 
+### String/Character Functions
+Function | Parameters | Returns | Uses
+--- | --- | --- | ---
+str | any object `o`[, radix `r`] | string | converts `o` into a string (if `o` is a number, then converts `o` to a string using the radix `r`)
+charToNum | single-character string `c` | number | converts `c` into a number
+numToChar | number `n` | number | converts `n` into a character
+uppercase | string `s` | string | converts every character in `s` to uppercase
+lowercase | string `s` | string | converts every character in `s` to lowercase
+
 ### Collection Related Functions
 Function | Parameters | Returns | Uses
 --- | --- | --- | ---
 len | list or map or string `c` | number | returns the length/size of `c`
 pop | list `l`[, number `i`] | list | removes the list element in `l`, or removes the element at index `i` in `l`
-swap | list `l`, number `i`, number `j` | list | swaps the elements at index `i` and `j`
 contains | list or map or string `c`, any object `o` (only strings if the first parameter is string) | boolean | checks if `c` contains `o`
 indexOf | list or string `c`, any object `o` (only strings if the first parameter is string) | number | finds the index of `o` in `c`, or `-1` if not found
 sort | list `l`[, function `f`] | sorts `l` in the elements natural ordering, or call `f` to compare pairs of items (`f` should take two parameters and return a negative value if the first value is less than the second, zero if they are equal, and a positive value if the second value is less than the first)

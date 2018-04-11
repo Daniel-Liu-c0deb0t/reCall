@@ -853,21 +853,6 @@ public class Functions{
 		}
 	};
 	
-	public static Function swapList = (params) -> {
-		if(params.length != 3)
-			throw new IllegalArgumentException("Only 3 parameter(s) allowed!");
-		
-		if(params[0] instanceof reList && params[1] instanceof reNumber && params[2] instanceof reNumber){
-			ArrayList<reObject> res = new ArrayList<>(params[0].getListVal());
-			int a = ((reNumber)params[1]).val.intValue();
-			int b = ((reNumber)params[2]).val.intValue();
-			Utils.swap(res, a < 0 ? res.size() + a : a, b < 0 ? res.size() + b : b);
-			return new reList(res);
-		}else{
-			throw new IllegalArgumentException("Bad arguments: \"" + Utils.join(params, ", ", 0, true) + "\"");
-		}
-	};
-	
 	public static Function contains = (params) -> {
 		if(params.length != 2)
 			throw new IllegalArgumentException("Only 2 parameter(s) allowed!");
@@ -1202,7 +1187,6 @@ public class Functions{
 		
 		functions.put("len", new DefaultFunction(length, "length of a list, set, or string"));
 		functions.put("pop", new DefaultFunction(popList, "removes an item from the list"));
-		functions.put("swap", new DefaultFunction(swapList, "swaps two elements in a list"));
 		functions.put("sort", new DefaultFunction(sortList, "sorts the list"));
 		functions.put("nextPerm", new DefaultFunction(nextPermutation, "gets next lexicographically larger permutation"));
 		functions.put("maskList", new DefaultFunction(maskList, "creates a sublist of a list using an integer mask"));
