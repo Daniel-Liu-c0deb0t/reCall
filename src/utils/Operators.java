@@ -21,6 +21,7 @@ public class Operators{
 		operators.add(new Symbol("//", 2, false, floorDivide, "floor divide"));
 		operators.add(new Symbol("%", 2, false, mod, "modulo"));
 		operators.add(new Symbol("**", 1, false, pow, "exponentiate"));
+		operators.add(new Symbol("..", 4, false, consecutiveList, "generate consecutive list"));
 		
 		//unary not operators
 		//'^' is used as a placeholder to simplify code
@@ -28,12 +29,12 @@ public class Operators{
 		operators.add(new Symbol("!", 0, false, null, "not"));
 		operators.add(new Symbol("^", 0, false, not, "not (should not actually be used in code)"));
 		
-		operators.add(new Symbol(">", 4, false, cmpGreater, "greater than"));
-		operators.add(new Symbol("<", 4, false, cmpLess, "less than"));
-		operators.add(new Symbol(">=", 4, false, cmpGreaterEq, "greater than or equal to"));
-		operators.add(new Symbol("<=", 4, false, cmpLessEq, "less than or equal to"));
-		operators.add(new Symbol("==", 5, false, cmpEq, "equal to"));
-		operators.add(new Symbol("!=", 5, false, cmpNotEq, "not equal to"));
+		operators.add(new Symbol(">", 5, false, cmpGreater, "greater than"));
+		operators.add(new Symbol("<", 5, false, cmpLess, "less than"));
+		operators.add(new Symbol(">=", 5, false, cmpGreaterEq, "greater than or equal to"));
+		operators.add(new Symbol("<=", 5, false, cmpLessEq, "less than or equal to"));
+		operators.add(new Symbol("==", 6, false, cmpEq, "equal to"));
+		operators.add(new Symbol("!=", 6, false, cmpNotEq, "not equal to"));
 		
 		//logical operators are specially handled to support short circuiting
 		operators.add(new Symbol("&&", 0, true, null, "logical and"));

@@ -42,7 +42,7 @@ public class reNumber implements reObject, Comparable<reNumber>{
 	
 	@Override
 	public String toString(){
-		return val.toString();
+		return val.toPlainString();
 	}
 	
 	@Override
