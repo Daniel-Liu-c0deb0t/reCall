@@ -985,7 +985,7 @@ public class Functions{
 		if(params[1] instanceof reNumber && params[2] instanceof reFunction){
 			ArrayList<reObject> res = new ArrayList<>();
 			res.add(params[0]);
-			int n = ((BigDecimal)params[1]).intValue(); //should fit!
+			int n = ((reNumber)params[1]).val.intValue(); //should fit!
 			for(int i = 1; i < n; i++){
 				res.add(((reFunction)params[2]).apply(
 						new reObject[]{new reNumber(new BigDecimal(i)), res.get(res.size() - 1)}));

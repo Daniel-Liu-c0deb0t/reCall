@@ -90,8 +90,8 @@ public class Interpreter{
 				isString = false;
 				
 				for(int i = 0; i < line.length(); i++){ //search for '='
-					if(!isString && line.charAt(i) == '[') count++;
-					else if(!isString && line.charAt(i) == ']') count--;
+					if(!isString && (line.charAt(i) == '(' || line.charAt(i) == '[' || line.charAt(i) == '{')) count++;
+					else if(!isString && (line.charAt(i) == ')' || line.charAt(i) == ']' || line.charAt(i) == '}')) count--;
 					else if(line.charAt(i) == '"') isString = !isString;
 					else if(!isString && count == 0 && line.charAt(i) == '='){
 						idxEq = i;
