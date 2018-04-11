@@ -48,6 +48,7 @@ public class Interpreter{
 		try{
 			while((line = src.readLine()) != null){
 				lineNum++;
+				progLine = lineNum;
 				
 				int indent = countLeftSpaces(line);
 				line = removeSpaces(line);
@@ -85,7 +86,6 @@ public class Interpreter{
 				line = builder.toString();
 				
 				int idxEq = -1;
-				int idxArr = line.indexOf('[');
 				int count = 0;
 				isString = false;
 				
@@ -93,9 +93,8 @@ public class Interpreter{
 					if(!isString && line.charAt(i) == '[') count++;
 					else if(!isString && line.charAt(i) == ']') count--;
 					else if(line.charAt(i) == '"') isString = !isString;
-					else if(!isString && idxEq == -1 && count == 0 && line.charAt(i) == '=') idxEq = i;
-					else if(!isString && line.charAt(i) == '#'){
-						line = line.substring(0, i);
+					else if(!isString && count == 0 && line.charAt(i) == '='){
+						idxEq = i;
 						break;
 					}
 				}
@@ -113,7 +112,7 @@ public class Interpreter{
 							if(prog.peek().get(prog.peek().size() - 1) instanceof FunctionStatement)
 								end = ((FunctionStatement)prog.peek().get(prog.peek().size() - 1)).end;
 							else
-								end = prog.peek().get(prog.peek().size() - 1).getLineNum();
+								end = getEnd(prog.peek());
 							prog.peek().add(new EndStatement());
 							ArrayList<Statement> res = prog.pop();
 							((FunctionStatement)prog.peek().get(prog.peek().size() - 1)).lines = res;
@@ -124,7 +123,7 @@ public class Interpreter{
 							if(prog.peek().get(prog.peek().size() - 1) instanceof FunctionStatement)
 								end = ((FunctionStatement)prog.peek().get(prog.peek().size() - 1)).end;
 							else
-								end = prog.peek().get(prog.peek().size() - 1).getLineNum();
+								end = getEnd(prog.peek());
 							if(elifs.peek() instanceof IfStatement)
 								((IfStatement)elifs.peek()).end = end;
 							else
@@ -137,7 +136,7 @@ public class Interpreter{
 						if(prog.peek().get(prog.peek().size() - 1) instanceof FunctionStatement)
 							end = ((FunctionStatement)prog.peek().get(prog.peek().size() - 1)).end;
 						else
-							end = prog.peek().get(prog.peek().size() - 1).getLineNum();
+							end = getEnd(prog.peek());
 						if(elifs.peek() instanceof IfStatement)
 							((IfStatement)elifs.peek()).end = end;
 						else
@@ -149,7 +148,7 @@ public class Interpreter{
 						if(prog.peek().get(prog.peek().size() - 1) instanceof FunctionStatement)
 							end = ((FunctionStatement)prog.peek().get(prog.peek().size() - 1)).end;
 						else
-							end = prog.peek().get(prog.peek().size() - 1).getLineNum();
+							end = getEnd(prog.peek());
 						prog.peek().add(new EndStatement());
 						ArrayList<Statement> res = prog.pop();
 						((FunctionStatement)prog.peek().get(prog.peek().size() - 1)).lines = res;
@@ -176,9 +175,8 @@ public class Interpreter{
 					prog.peek().add(elseStatement);
 					indentsIf.push(indent);
 					elifs.push(elseStatement);
-				}else if(idxEq != -1 &&
-						(((idxArr == -1 || idxArr > idxEq) && isVarName(line.substring(0, idxEq - (s == null ? 0 : s.op.length())))) ||
-						((idxArr != -1 && idxArr < idxEq) && isVarName(line.substring(0, idxArr))))){
+				}else if(idxEq != -1 && Operators.getOperatorStart(line.substring(idxEq)) == null
+						&& Operators.getOperatorEnd(line.substring(0, idxEq + 1)) == null){
 					//variable = expression
 					String var = line.substring(0, idxEq);
 					String exp = line.substring(idxEq + 1);
@@ -190,8 +188,12 @@ public class Interpreter{
 						indentsFunc.push(indent);
 					}else{
 						if(s != null){
-							var = var.substring(0, var.length() - s.op.length());
-							exp = var + s.op + exp;
+							if(s.beforeEq){
+								var = var.substring(0, var.length() - s.op.length());
+								exp = var + s.op + exp;
+							}else{
+								throw new IllegalArgumentException("The operator, \"" + s.op + "\", cannot be placed before an equals sign!");
+							}
 						}
 						prog.peek().add(new SetStatement(var, exp, lineNum));
 					}
@@ -211,7 +213,7 @@ public class Interpreter{
 					if(prog.peek().get(prog.peek().size() - 1) instanceof FunctionStatement)
 						end = ((FunctionStatement)prog.peek().get(prog.peek().size() - 1)).end;
 					else
-						end = prog.peek().get(prog.peek().size() - 1).getLineNum();
+						end = getEnd(prog.peek());
 					prog.peek().add(new EndStatement());
 					ArrayList<Statement> res = prog.pop();
 					((FunctionStatement)prog.peek().get(prog.peek().size() - 1)).lines = res;
@@ -222,7 +224,7 @@ public class Interpreter{
 					if(prog.peek().get(prog.peek().size() - 1) instanceof FunctionStatement)
 						end = ((FunctionStatement)prog.peek().get(prog.peek().size() - 1)).end;
 					else
-						end = prog.peek().get(prog.peek().size() - 1).getLineNum();
+						end = getEnd(prog.peek());
 					if(elifs.peek() instanceof IfStatement)
 						((IfStatement)elifs.peek()).end = end;
 					else
@@ -235,7 +237,7 @@ public class Interpreter{
 				if(prog.peek().get(prog.peek().size() - 1) instanceof FunctionStatement)
 					end = ((FunctionStatement)prog.peek().get(prog.peek().size() - 1)).end;
 				else
-					end = prog.peek().get(prog.peek().size() - 1).getLineNum();
+					end = getEnd(prog.peek());
 				if(elifs.peek() instanceof IfStatement)
 					((IfStatement)elifs.peek()).end = end;
 				else
@@ -247,7 +249,7 @@ public class Interpreter{
 				if(prog.peek().get(prog.peek().size() - 1) instanceof FunctionStatement)
 					end = ((FunctionStatement)prog.peek().get(prog.peek().size() - 1)).end;
 				else
-					end = prog.peek().get(prog.peek().size() - 1).getLineNum();
+					end = getEnd(prog.peek());
 				prog.peek().add(new EndStatement());
 				ArrayList<Statement> res = prog.pop();
 				((FunctionStatement)prog.peek().get(prog.peek().size() - 1)).lines = res;

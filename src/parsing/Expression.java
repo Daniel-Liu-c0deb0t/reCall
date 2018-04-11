@@ -8,6 +8,8 @@ import objects.reNumber;
 import objects.reObject;
 import objects.reString;
 import utils.Functions;
+import utils.Operators;
+import utils.Operators.Symbol;
 
 import static utils.Utils.*;
 import static utils.Operators.*;
@@ -176,7 +178,7 @@ public class Expression implements Statement{
 				if(s.charAt(i) == '['){
 					lIdx = i;
 					count++;
-				}else if(getOperatorStart(s.substring(i)) != null){
+				}else if(s.charAt(i) == '=' || getOperatorStart(s.substring(i)) != null){
 					break;
 				}
 			}else if(lIdx != -1 && count == 0) break;
@@ -281,7 +283,7 @@ public class Expression implements Statement{
 			}
 		}
 		
-		//handle inline function calls
+		//handle inline functions
 		lIdx = s.indexOf('(');
 		int rIdx = s.indexOf(')');
 		if(lIdx != -1 && rIdx != -1){
@@ -326,6 +328,40 @@ public class Expression implements Statement{
 			}else{
 				return recursiveCalc(s.substring(elseIdx + 4), s, lineNum, lineNum, lineNum);
 			}
+		}
+		
+		//handle the '=' operator
+		int idxEq = -1;
+		count = 0;
+		isString = false;
+		for(int i = 0; i < s.length(); i++){ //search for '='
+			if(!isString && (s.charAt(i) == '(' || s.charAt(i) == '[' || s.charAt(i) == '{')) count++;
+			else if(!isString && (s.charAt(i) == ')' || s.charAt(i) == ']' || s.charAt(i) == '}')) count--;
+			else if(s.charAt(i) == '"') isString = !isString;
+			else if(!isString && count == 0 && s.charAt(i) == '='){
+				idxEq = i;
+				break;
+			}
+		}
+		Symbol symbolEq = null; //operator before '='
+		if(idxEq != -1)
+			symbolEq = Operators.getOperatorEnd(s.substring(0, idxEq));
+		
+		if(idxEq != -1 && Operators.getOperatorStart(s.substring(idxEq)) == null
+				&& Operators.getOperatorEnd(s.substring(0, idxEq + 1)) == null){
+			String var = s.substring(0, idxEq);
+			String exp = s.substring(idxEq + 1);
+			
+			if(symbolEq != null){
+				if(symbolEq.beforeEq){
+					var = var.substring(0, var.length() - symbolEq.op.length());
+					exp = var + symbolEq.op + exp;
+				}else{
+					throw new IllegalArgumentException("The operator, \"" + symbolEq.op + "\", cannot be placed before an equals sign!");
+				}
+			}
+			
+			return SetStatement.calcSet(var, exp, start, end, lineNum);
 		}
 		
 		//handle short circuit operators ("&&" and "||")

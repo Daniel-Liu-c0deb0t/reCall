@@ -145,6 +145,15 @@ public class Utils{
 		}
 	}
 	
+	public static int getEnd(ArrayList<Statement> arr){
+		for(int i = arr.size() - 1; i >= 0; i--){
+			if(arr.get(i).getLineNum() != -1){
+				return arr.get(i).getLineNum();
+			}
+		}
+		return -1;
+	}
+	
 	public static int getRGB(ArrayList<reObject> arr){
 		int r = ((reNumber)arr.get(0)).val.intValue();
 		int g = ((reNumber)arr.get(1)).val.intValue();
