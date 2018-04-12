@@ -1,9 +1,12 @@
 package parsing;
 
 import objects.reArrayAccessible;
+import objects.reClass;
 import objects.reFunction;
+import objects.reInitializedClass;
 import objects.reList;
 import objects.reMap;
+import objects.reMemberSelectable;
 import objects.reNumber;
 import objects.reObject;
 import objects.reString;
@@ -262,12 +265,29 @@ public class Expression implements Statement{
 			String funcName = s.substring(0, lIdx);
 			Symbol symbol = getOperatorEnd(funcName);
 			reObject func = null;
+			reInitializedClass container = null;
+			
+			count = 0;
+			isString = false;
+			int idxDot = -1;
+			for(int i = funcName.length() - 1; i >= 0; i--){
+				if(!isString && (funcName.charAt(i) == ')' || funcName.charAt(i) == ']' || funcName.charAt(i) == '}')) count++;
+				else if(!isString && (funcName.charAt(i) == '(' || funcName.charAt(i) == '[' || funcName.charAt(i) == '{')) count--;
+				else if(funcName.charAt(i) == '"') isString = !isString;
+				else if(!isString && count == 0 && funcName.charAt(i) == '.'){
+					idxDot = i;
+					break;
+				}
+			}
+			
 			if(isFuncName(funcName))
 				func = getVarByName(funcName, start, end);
-			else if(symbol == null && funcName.charAt(funcName.length() - 1) != '=')
-				func = recursiveCalc(funcName, s, start, end, lineNum);
+			else if(symbol == null && funcName.charAt(funcName.length() - 1) != '='){
+				container = (reInitializedClass)recursiveCalc(funcName.substring(0, idxDot), s, start, end, lineNum);
+				func = container.select(funcName.substring(idxDot + 1));
+			}
 			if(func != null || isFuncName(funcName)){
-				if(!funcName.equals("eval") && !(func instanceof reFunction)
+				if(!funcName.equals("eval") && !(func instanceof reFunction) && !(func instanceof reClass)
 						&& !Functions.functions.containsKey(funcName)){
 					throw new IllegalArgumentException("Bad function call using \"" + s + "\"!");
 				}
@@ -296,12 +316,45 @@ public class Expression implements Statement{
 					arr[0] = new reNumber(new BigDecimal(lineNum));
 					return Functions.eval.apply(arr);
 				}else if(func instanceof reFunction){
-					return ((reFunction)func).apply(params.toArray(new reObject[params.size()]));
+					return ((reFunction)func).apply(container, params.toArray(new reObject[params.size()]));
+				}else if(func instanceof reClass){
+					return new reInitializedClass((reClass)func, params);
 				}else{
 					return Functions.functions.get(funcName).func.apply(params.toArray(new reObject[params.size()]));
 				}
 			}
 		}
+		
+		//handle member selectors for classes
+		count = 0;
+		int prevDot = 0;
+		isString = false;
+		reObject curr = null;
+		for(int i = 0; i <= s.length(); i++){
+			if(i == s.length() && curr == null) break;
+			if(!isString && count == 0 && (getOperatorStart(s.substring(i)) != null || s.startsWith("=", i))){
+				curr = null;
+				break;
+			}
+			if(i == s.length() ||
+					(!isString && count == 0 && s.charAt(i) == '.')){
+				String select = s.substring(prevDot, i);
+				if(curr == null || curr instanceof reMemberSelectable){
+					if(curr != null && isVarName(select)){
+						curr = ((reMemberSelectable)curr).select(select);
+					}else{
+						curr = recursiveCalc(select, s, start, end, lineNum);
+					}
+					prevDot = i + 1;
+				}else{
+					throw new IllegalArgumentException(s + " cannot be selected using the \".\" operator!");
+				}
+			}else if(s.charAt(i) == '"') isString = !isString;
+			else if(!isString && (s.charAt(i) == '(' || s.charAt(i) == '[' || s.charAt(i) == '{')) count++;
+			else if(!isString && (s.charAt(i) == ')' || s.charAt(i) == ']' || s.charAt(i) == '}')) count--;
+		}
+		if(curr != null)
+			return curr;
 		
 		//handle inline functions
 		int rIdx = s.indexOf(')');
@@ -322,7 +375,7 @@ public class Expression implements Statement{
 				ArrayList<Statement> lines = new ArrayList<>();
 				lines.add(new ReturnStatement(s.substring(rIdx + 3), lineNum));
 				lines.add(new EndStatement());
-				return new reFunction("this", lines, new ArrayList<String>(Arrays.asList(vars)), lineNum, lineNum);
+				return new reFunction("lambda", lines, new ArrayList<String>(Arrays.asList(vars)), lineNum, lineNum);
 			}
 		}
 		

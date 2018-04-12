@@ -11,6 +11,7 @@ import java.util.TreeMap;
 
 import objects.reNumber;
 import objects.reObject;
+import parsing.ClassStatement;
 import parsing.ElseStatement;
 import parsing.EndStatement;
 import parsing.Expression;
@@ -186,6 +187,8 @@ public class Interpreter{
 								new FunctionStatement(var, exp.substring(1, exp.length() - 3), lineNum));
 						prog.push(new ArrayList<Statement>());
 						indentsFunc.push(indent);
+					}else if(exp.startsWith("class->")){
+						prog.peek().add(new ClassStatement(var, exp.substring(7), lineNum));
 					}else{
 						if(s != null){
 							if(s.beforeEq){
@@ -309,6 +312,8 @@ public class Interpreter{
 				}
 				return res;
 			}else if(shouldRun.peek() && line instanceof FunctionStatement){
+				line.calc(start, end);
+			}else if(shouldRun.peek() && line instanceof ClassStatement){
 				line.calc(start, end);
 			}else if(line instanceof EndStatement){
 				if(shouldRun.peek())

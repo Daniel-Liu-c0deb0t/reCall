@@ -37,7 +37,7 @@ public class reFunction implements reObject{
 		this.end = end;
 	}
 	
-	public reObject apply(reObject[] params){
+	public reObject apply(reInitializedClass c, reObject[] params){
 		if(params.length != names.size())
 			throw new IllegalArgumentException("Wrong number of arguments for function call!");
 		
@@ -52,7 +52,8 @@ public class reFunction implements reObject{
 		for(int i = 0; i < params.length; i++){
 			stack.peek().vars.put(names.get(i), params[i]);
 		}
-		stack.peek().vars.put(funcName, this); //reduce the need to traverse up the stack
+		if(c != null)
+			stack.peek().vars.put("this", c);
 		
 		if(cacheMap.size() < cacheSize){ //deep clone objects so functions that modify params will work
 			for(int i = 0; i < key.size(); i++){
@@ -69,12 +70,16 @@ public class reFunction implements reObject{
 	
 	@Override
 	public String toString(){
-		return "Function";
+		return "Function: " + funcName;
 	}
 	
 	@Override
 	public int hashCode(){
-		return lines.hashCode();
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + funcName.hashCode();
+		result = prime * result + lines.hashCode();
+		return result;
 	}
 	
 	@Override
@@ -83,7 +88,7 @@ public class reFunction implements reObject{
 			return false;
 		if(getClass() != o.getClass())
 			return false;
-		if(!lines.equals(((reFunction)o).lines))
+		if(funcName != ((reFunction)o).funcName || !lines.equals(((reFunction)o).lines))
 			return false;
 		return true;
 	}

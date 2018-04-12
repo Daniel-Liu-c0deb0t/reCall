@@ -5,6 +5,7 @@ import java.util.Arrays;
 
 import objects.reArrayAccessible;
 import objects.reList;
+import objects.reMemberSelectable;
 import objects.reObject;
 import utils.Utils;
 
@@ -70,19 +71,30 @@ public class SetStatement implements Statement{
 		return res;
 	}
 	
-	private static void set(String var, reObject res, int start, int end, int lineNum){
-		int idxArr = var.indexOf('[');
+	public static void set(String var, reObject res, int start, int end, int lineNum){
+		int count = 0;
+		boolean isString = false;
+		int idxArr = -1;
+		for(int i = var.length() - 1; i >= 0; i--){
+			if(!isString && var.charAt(i) == ']') count++;
+			else if(!isString && var.charAt(i) == '[') count--;
+			else if(var.charAt(i) == '"') isString = !isString;
+			else if(!isString && count == 0){
+				idxArr = i + 1;
+				break;
+			}
+		}
 		
-		if(idxArr != -1 && var.charAt(var.length() - 1) == ']'){ //handle array set
+		if(idxArr != -1 && idxArr < var.length() && var.charAt(var.length() - 1) == ']'){ //handle array set
 			String varName = var.substring(0, idxArr);
-			reObject curr = Utils.getVarByName(varName, start, end);
+			reObject curr = Expression.recursiveCalc(varName, null, start, end, lineNum);
 			if(curr == null)
 				throw new IllegalArgumentException("Undefined variable name: \"" + var + "\"");
 			
 			if(curr instanceof reArrayAccessible){
-				int count = 0;
+				count = 0;
 				int prev = 0;
-				boolean isString = false;
+				isString = false;
 				
 				for(int i = idxArr; i < var.length(); i++){
 					if(var.charAt(i) == '"') isString = !isString;
@@ -111,7 +123,29 @@ public class SetStatement implements Statement{
 				throw new IllegalArgumentException("\"" + var + "\" cannot be accessed using []!");
 			}
 		}else{
-			Utils.putVarByName(var, res, start, end);
+			count = 0;
+			isString = false;
+			int idxDot = -1;
+			for(int i = var.length() - 1; i >= 0; i--){
+				if(!isString && (var.charAt(i) == ')' || var.charAt(i) == ']' || var.charAt(i) == '}')) count++;
+				else if(!isString && (var.charAt(i) == '(' || var.charAt(i) == '[' || var.charAt(i) == '{')) count--;
+				else if(var.charAt(i) == '"') isString = !isString;
+				else if(!isString && count == 0 && var.charAt(i) == '.'){
+					idxDot = i;
+					break;
+				}
+			}
+			
+			if(idxDot == -1){
+				Utils.putVarByName(var, res, start, end);
+			}else{
+				reObject o = Expression.recursiveCalc(var.substring(0, idxDot), null, start, end, lineNum);
+				if(o instanceof reMemberSelectable){
+					((reMemberSelectable)o).set(var.substring(idxDot + 1), res);
+				}else{
+					throw new IllegalArgumentException(var + " cannot be selected using the \".\" operator!");
+				}
+			}
 		}
 	}
 }

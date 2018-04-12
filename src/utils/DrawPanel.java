@@ -28,7 +28,7 @@ public class DrawPanel extends JPanel{
 	public void draw(){
 		for(int i = 0; i < img.getWidth(); i++){
 			for(int j = 0; j < img.getHeight(); j++){
-				reList list = (reList)func.apply(new reObject[]{new reNumber(new BigDecimal(i)), new reNumber(new BigDecimal(j))});
+				reList list = (reList)func.apply(null, new reObject[]{new reNumber(new BigDecimal(i)), new reNumber(new BigDecimal(j))});
 				img.setRGB(i, j, Utils.getRGB(list.val));
 			}
 			if(i % 2 == 0)

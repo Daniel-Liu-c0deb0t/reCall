@@ -16,10 +16,12 @@ import javax.imageio.ImageIO;
 
 import static core.Persistent.*;
 
+import objects.reClass;
 import objects.reCloseable;
 import objects.reFileReader;
 import objects.reFileWriter;
 import objects.reFunction;
+import objects.reInitializedClass;
 import objects.reList;
 import objects.reMap;
 import objects.reNumber;
@@ -232,6 +234,22 @@ public class Functions{
 			return new reNumber(BigDecimal.ONE);
 		}else{
 			return new reNumber(BigDecimal.ZERO);
+		}
+	};
+	
+	public static Function instanceOf = (params) -> {
+		if(params[0] instanceof reInitializedClass && params[1] instanceof reClass){
+			if(((reInitializedClass)params[0]).c.equals(params[1]))
+				return new reNumber(BigDecimal.ONE);
+			else
+				return new reNumber(BigDecimal.ZERO);
+		}else if(params[1] instanceof reInitializedClass && params[0] instanceof reClass){
+			if(((reInitializedClass)params[1]).c.equals(params[0]))
+				return new reNumber(BigDecimal.ONE);
+			else
+				return new reNumber(BigDecimal.ZERO);
+		}else{
+			throw new IllegalArgumentException("Bad arguments: \"" + Utils.join(params, ", ", 0, true) + "\"");
 		}
 	};
 	
@@ -764,7 +782,7 @@ public class Functions{
 		}else if(params.length == 2){
 			if(params[0] instanceof reList && params[1] instanceof reFunction){
 				ArrayList<reObject> res = new ArrayList<>(params[0].getListVal());
-				Collections.sort(res, (a, b) -> ((reNumber)((reFunction)params[1]).apply(new reObject[]{a, b})).val.signum());
+				Collections.sort(res, (a, b) -> ((reNumber)((reFunction)params[1]).apply(null, new reObject[]{a, b})).val.signum());
 				return new reList(res);
 			}else{
 				throw new IllegalArgumentException("Bad arguments: \"" + Utils.join(params, ", ", 0, true) + "\"");
@@ -904,7 +922,7 @@ public class Functions{
 			ArrayList<reObject> res = new ArrayList<>();
 			ArrayList<reObject> val = params[0].getListVal();
 			for(int i = 0; i < val.size(); i++){
-				reObject o = ((reFunction)params[1]).apply(new reObject[]{new reNumber(new BigDecimal(i)), val.get(i)});
+				reObject o = ((reFunction)params[1]).apply(null, new reObject[]{new reNumber(new BigDecimal(i)), val.get(i)});
 				if(o != null)
 					res.add(o);
 			}
@@ -922,7 +940,7 @@ public class Functions{
 			ArrayList<reObject> res = new ArrayList<>();
 			ArrayList<reObject> val = params[0].getListVal();
 			for(int i = 0; i < val.size(); i++){
-				if(((reFunction)params[1]).apply(
+				if(((reFunction)params[1]).apply(null,
 						new reObject[]{new reNumber(new BigDecimal(i)), val.get(i)}).toBool() != 0)
 					res.add(val.get(i));
 			}
@@ -943,7 +961,7 @@ public class Functions{
 				if(res == null)
 					res = o;
 				else
-					res = ((reFunction)params[1]).apply(new reObject[]{res, o});
+					res = ((reFunction)params[1]).apply(null, new reObject[]{res, o});
 			}
 			return res;
 		}else{
@@ -959,16 +977,16 @@ public class Functions{
 			reObject curr = params[0];
 			int n = ((reNumber)params[1]).val.intValue(); //should fit!
 			for(int i = 1; i < n; i++){
-				curr = ((reFunction)params[2]).apply(
+				curr = ((reFunction)params[2]).apply(null,
 						new reObject[]{new reNumber(new BigDecimal(i)), curr});
 			}
 			return curr;
 		}else if(params[1] instanceof reFunction && params[2] instanceof reFunction){
 			reObject curr = params[0];
 			int i = 1;
-			while(((reFunction)params[1]).apply(
+			while(((reFunction)params[1]).apply(null,
 					new reObject[]{new reNumber(new BigDecimal(i)), curr}).toBool() != 0){
-				curr = ((reFunction)params[2]).apply(
+				curr = ((reFunction)params[2]).apply(null,
 						new reObject[]{new reNumber(new BigDecimal(i)), curr});
 				i++;
 			}
@@ -987,7 +1005,7 @@ public class Functions{
 			res.add(params[0]);
 			int n = ((reNumber)params[1]).val.intValue(); //should fit!
 			for(int i = 1; i < n; i++){
-				res.add(((reFunction)params[2]).apply(
+				res.add(((reFunction)params[2]).apply(null,
 						new reObject[]{new reNumber(new BigDecimal(i)), res.get(res.size() - 1)}));
 			}
 			return new reList(res);
@@ -995,9 +1013,9 @@ public class Functions{
 			ArrayList<reObject> res = new ArrayList<>();
 			res.add(params[0]);
 			int i = 1;
-			while(((reFunction)params[1]).apply(
+			while(((reFunction)params[1]).apply(null,
 					new reObject[]{new reNumber(new BigDecimal(i)), res.get(res.size() - 1)}).toBool() != 0){
-				res.add(((reFunction)params[2]).apply(
+				res.add(((reFunction)params[2]).apply(null,
 						new reObject[]{new reNumber(new BigDecimal(i)), res.get(res.size() - 1)}));
 				i++;
 			}
