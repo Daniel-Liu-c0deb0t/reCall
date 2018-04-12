@@ -355,7 +355,7 @@ public class Expression implements Statement{
 			if(symbolEq != null){
 				if(symbolEq.beforeEq){
 					var = var.substring(0, var.length() - symbolEq.op.length());
-					exp = var + symbolEq.op + exp;
+					exp = var + symbolEq.op + "(" + exp + ")";
 				}else{
 					throw new IllegalArgumentException("The operator, \"" + symbolEq.op + "\", cannot be placed before an equals sign!");
 				}

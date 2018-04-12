@@ -322,8 +322,10 @@ refresh | window | nothing | tells the window to redraw
 Function | Parameters | Returns | Uses
 --- | --- | --- | ---
 regex | string `s` | string | converts `s` to a regex pattern
-replace | string `text`, string `before`, string `after` | string | replaces all occurrences of `before` (can be regex) with `after` in `text`
+replace | string `text`, string `before`, string `after` | string | replaces all occurrences of `before` (can be regex) with `after` in `text` (`after` can backreference to groups in `before`)
 matchGroups | string `text`, string `regex` | list | creates a list containing all of the groups that are matched (if the text matches the regex, or else an empty list is returned)
+
+reCall's regex functions uses Java's build-in regex functions. [Here](https://docs.oracle.com/javase/8/docs/api/java/util/regex/Pattern.html) is a link to more information about Java's regex engine.
 
 ### Miscellaneous
 Function | Parameters | Returns | Uses
@@ -336,3 +338,4 @@ Note that none of the built-in functions changes the state of its parameters or 
 - Use implicit loops (eg. `map`, `filter`, `reduce`, `generate`, etc.) instead of recursion to reduce memory needs
 - Use `\` at the very end of a line to tell the interpreter that the next line continues that line. This can be used make long, single-line statements multi-line
 - Use `\n` in strings to indicate a newline. To escape the `\n`, use `\\n`.
+- Everything in an expressions is evaluated in order, which means that function calls and variable access are postponed until they are needed.

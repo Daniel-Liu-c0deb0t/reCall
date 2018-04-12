@@ -190,7 +190,7 @@ public class Interpreter{
 						if(s != null){
 							if(s.beforeEq){
 								var = var.substring(0, var.length() - s.op.length());
-								exp = var + s.op + exp;
+								exp = var + s.op + "(" + exp + ")";
 							}else{
 								throw new IllegalArgumentException("The operator, \"" + s.op + "\", cannot be placed before an equals sign!");
 							}
