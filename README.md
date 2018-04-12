@@ -229,7 +229,7 @@ Precedance | Operators | Description | Details
 5 | `>`, `<`, `>=`, `<=` | greater than, less than, greater than or equal to, less than or equal to | Strings and numbers can be compared. Lists can also be compared. Strings and lists are compared by lexicographical order.
 4 | `==`, `!=` | equals, not equals | When matching two strings, one string can be a regex pattern. If both or none of the strings are regex then character by character matching is used.
 3 | `&&` | logical and | True only if both sides evaluate to true (non-zero) values. Note that this operator short circuits, so expressions separated by the `&&` are evaluated from left to right, and if one expression is false, it stops evaluating the others.
-2 | `||` | logical or | True if either side evaluates to true (non-zero) values. Note that this operator short circuits, so expressions separated by the `||` are evaluated from left to right, and if one expression is true, it stops evaluating the others.
+2 | <code>&#124&#124</code> | logical or | True if either side evaluates to true (non-zero) values. Note that this operator short circuits, so expressions separated by the `||` are evaluated from left to right, and if one expression is true, it stops evaluating the others.
 1 | `() ->` | lambda/inline function definition | Basically a one line, condensed function.
 1 | `?` and `else` | ternary operator | Basically a one line, condensed if/else statement.
 0 | `=` and variants (`+=`, `*=`, etc.) | set operator | sets a variable or a list/map item to some value | Example: `a += 1` = `a = a + 1`.
@@ -267,7 +267,7 @@ Function | Parameters | Returns | Uses
 --- | --- | --- | ---
 str | any object `o`[, radix `r`] | string | converts `o` into a string (if `o` is a number, then converts `o` to a string using the radix `r`)
 charToNum | single-character string `c` | number | converts `c` into a number
-numToChar | number `n` | number | converts `n` into a character
+numToChar | number `n` | single-character string | converts `n` into a character
 uppercase | string `s` | string | converts every character in `s` to uppercase
 lowercase | string `s` | string | converts every character in `s` to lowercase
 
@@ -278,13 +278,13 @@ len | list or map or string `c` | number | returns the length/size of `c`
 pop | list `l`[, number `i`] | list | removes the list element in `l`, or removes the element at index `i` in `l`
 contains | list or map or string `c`, any object `o` (only strings if the first parameter is string) | boolean | checks if `c` contains `o`
 indexOf | list or string `c`, any object `o` (only strings if the first parameter is string) | number | finds the index of `o` in `c`, or `-1` if not found
-sort | list `l`[, function `f`] | sorts `l` in the elements natural ordering, or call `f` to compare pairs of items (`f` should take two parameters and return a negative value if the first value is less than the second, zero if they are equal, and a positive value if the second value is less than the first)
+sort | list `l`[, function `f`] | list | sorts `l` in the elements natural ordering, or call `f` to compare pairs of items (`f` should take two parameters and return a negative value if the first value is less than the second, zero if they are equal, and a positive value if the second value is less than the first)
 count | list `l` | map | creates a map with all of the items in `l` as keys, and a counter counting how many duplicates for each item as values
 keyList | map `m` | list | creates a list containing all of the keys in `m`, in arbitrary order
 valList | map `m` | list | creates a list containing all of the values in `m`, in arbitrary order
 zip | list of lists `l` | list of lists | creates a new list where each item in the new list contains an item from each list in `l` (eg. `zip([[1, 2], [3, 4], [5, 6]])` = `[[1, 3, 5], [2, 4, 6]]`, this operation is also known as transposition)
 nextPerm | list `l` | list | creates a new list representing the next lexicographical permutation of `l` (this can be used to loop through permutations, make sure the initial list is sorted so it is in the lowest state)
-maskList | list `l`, number `n` | using the bits in `n` (which needs to be an integer), find a subset of `l` (this can be used to find all subsets of a list, by looping through each number from `0` to `len(list)`)
+maskList | list `l`, number `n` | list | using the bits in `n` (which needs to be an integer), find a subset of `l` (this can be used to find all subsets of a list, by looping through each number from `0` to `2 ** len(list)`)
 
 ### Random Related Functions
 Function | Parameters | Returns | Uses
@@ -296,8 +296,8 @@ shuffle | list `l` | list | creates a new list that is a random permutation of `
 ### Functional Functions
 Function | Parameters | Returns | Uses
 --- | --- | --- | ---
-map | list `l`, function `f` | list `l` | applies `f` to each element in `l`, and creates a new list with the values produces by `f` (`f` should take two parameters for the index and the list element, `f` can optionally return a new value)
-filter | list `l`, function `f` | list `l` | applies `f` to each element in `l`, and creates a list with elements that evaluate to true (non-zero value) when the `f` is called with it (`f` should take two parameters for the index and the list element, and it should return `0` if and only if the item should be removed)
+map | list `l`, function `f` | list | applies `f` to each element in `l`, and creates a new list with the values produces by `f` (`f` should take two parameters for the index and the list element, `f` can optionally return a new value)
+filter | list `l`, function `f` | list | applies `f` to each element in `l`, and creates a list with elements that evaluate to true (non-zero value) when the `f` is called with it (`f` should take two parameters for the index and the list element, and it should return `0` if and only if the item should be removed)
 reduce | list `l`, function `f` | any object | applies the `f` cumulatively to pairs of elements in `l`, to produce a final result (`f` should accept two parameters and return a value based on those two parameters)
 generateList | any object `o`, function `f1`, function `f2` | list | generates a list by starting with `o`, while `f1` does not produce a false value, call `f2` to generate a new value (f1 and f2 should accept two parameters, an index and the previously generated element)
 generate | any object `o`, function `f1`, function `f2` | any object | generates an object by starting with `o`, while `f1` does not produce a false value, call `f2` to generate a new value (f1 and f2 should accept two parameters, an index and the previously generated element), this function, unlike `generateList`, does not save intermediate values
