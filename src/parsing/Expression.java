@@ -232,7 +232,23 @@ public class Expression implements Statement{
 		}
 		
 		//handles function calls
-		lIdx = s.indexOf('(');
+		lIdx = -1;
+		count = 0;
+		isString = false;
+		for(int i = 0; i < s.length(); i++){
+			if(!isString && (s.charAt(i) == '[' || s.charAt(i) == '{')) count++;
+			else if(!isString && (s.charAt(i) == ']' || s.charAt(i) == '}')) count--;
+			else if(s.charAt(i) == '"') isString = !isString;
+			else if(!isString && count == 0){
+				if(s.charAt(i) == '('){
+					lIdx = i;
+					break;
+				}else if(s.charAt(i) == '=' || getOperatorStart(s.substring(i)) != null){
+					break;
+				}
+			}
+		}
+		
 		count = 1;
 		isString = false;
 		for(int i = lIdx + 1; i < s.length() - 1; i++){
@@ -244,10 +260,14 @@ public class Expression implements Statement{
 		
 		if(lIdx > 0 && count > 0 && s.charAt(s.length() - 1) == ')'){
 			String funcName = s.substring(0, lIdx);
-			if(isFuncName(funcName)){
-				reObject func = getVarByName(funcName, start, end);
-				
-				if(!funcName.equals("eval") && (func == null || !(func instanceof reFunction))
+			Symbol symbol = getOperatorEnd(funcName);
+			reObject func = null;
+			if(isFuncName(funcName))
+				func = getVarByName(funcName, start, end);
+			else if(symbol == null && funcName.charAt(funcName.length() - 1) != '=')
+				func = recursiveCalc(funcName, s, start, end, lineNum);
+			if(func != null || isFuncName(funcName)){
+				if(!funcName.equals("eval") && !(func instanceof reFunction)
 						&& !Functions.functions.containsKey(funcName)){
 					throw new IllegalArgumentException("Bad function call using \"" + s + "\"!");
 				}
@@ -275,7 +295,7 @@ public class Expression implements Statement{
 					}
 					arr[0] = new reNumber(new BigDecimal(lineNum));
 					return Functions.eval.apply(arr);
-				}else if(func != null && func instanceof reFunction){
+				}else if(func instanceof reFunction){
 					return ((reFunction)func).apply(params.toArray(new reObject[params.size()]));
 				}else{
 					return Functions.functions.get(funcName).func.apply(params.toArray(new reObject[params.size()]));
@@ -284,10 +304,9 @@ public class Expression implements Statement{
 		}
 		
 		//handle inline functions
-		lIdx = s.indexOf('(');
 		int rIdx = s.indexOf(')');
-		if(lIdx != -1 && rIdx != -1){
-			String[] vars = s.substring(lIdx + 1, rIdx).split(",");
+		if(s.charAt(0) == '(' && rIdx != -1){
+			String[] vars = s.substring(1, rIdx).split(",");
 			boolean isParams = true;
 			for(int i = 0; i < vars.length; i++){
 				if(!isVarName(vars[i])){

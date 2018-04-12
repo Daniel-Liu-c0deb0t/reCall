@@ -4,5 +4,5 @@ fact = (n) ->
 	
 	return n * fact(n - 1)
 
-n = 250
+n = 50
 write("The factorial of %.0f is %.0f!" % [n, fact(n)])

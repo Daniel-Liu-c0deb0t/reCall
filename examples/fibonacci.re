@@ -16,13 +16,13 @@ fib = (n) ->
 	
 	return rec(n)
 
-n = 1000
+n = 300
 write("1st method: the %.0fth Fibonacci number is %.0f!" % [n, fib(n)])
 
 
 # use automatic function caching
 
-n2 = 1000
+n2 = 300
 
 fib2 = (n, CACHE = n2 + 1) ->
 	n <= 2 ?
