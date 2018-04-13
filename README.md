@@ -1,9 +1,9 @@
 # reCall
 Interpreter for reCall, a scripting language.
 
-reCall is a dynamically typed language with imperative and functional capabilities. For and while loops are not supported, so only recursion and implicit loops can be used. Popular languages such as Java, C++, and Python inspired this project.
+reCall is a dynamically typed language with imperative, object oriented, and functional capabilities. For and while loops are not supported, so only recursion and implicit loops can be used. Popular languages such as Java, C++, and Python inspired this project.
 
-The interpreter is written in pure Java, and it uses recursion two levels of recursion to parse the code: one for if/else and function blocks, and another for evaluating expressions.
+The interpreter is written in pure Java, and it uses recursion two levels of recursion to parse the code: one for if/else and function blocks, and another for evaluating expressions. Variables are stored on a stack, and function calls can modify the number of layers in the stack.
 
 **Important note! reCall is not very optimized, so it probably should not be used in production. However, it can be used for automating and scripting purposes.**
 
@@ -45,6 +45,30 @@ fact = (n) ->
 
 n = 250
 write("The factorial of %.0f is %.0f!" % [n, fact(n)])
+```
+Finally, here is an example showing off reCall's basic object oriented features:
+```
+Assignment = class -> name, pages, dueTomorrow; static doIt
+Assignment.doIt = (time) ->
+	write("The assignment, " + this.name + ", was done in " + time + " minutes!")
+
+assign = () ->
+	res = []
+	res += [Assignment("Homework 1", 5, 1)]
+	res += [Assignment("Homework 2", 10, 0)]
+	res += [Assignment("Project", 5, 0)]
+	res += [Assignment("Classwork 1", 3, 1)]
+	res += [Assignment("Classwork 2", 10, 1)]
+	return res
+
+list = assign() # make a few assignments in a list
+
+# lets see what we need to do
+map(list, (i, x) -> write((x.dueTomorrow ? "Gotta do %.0f pages of my %s before tomorrow!" \
+										else "Gotta do %.0f pages of my %s... not!") % [x.pages, x.name]))
+
+# ok, we are only doing the ones that are due tomorrow
+map(filter(list, (i, x) -> x.dueTomorrow), (i, x) -> x.doIt(randInt(0, 120)))
 ```
 Read on for the full tutorial and other details!
 
@@ -189,6 +213,41 @@ f = (n, CACHE = INF) ->
 ```
 The `INF` indicates that there should not be a limit to the cache size. The specified cache size gives an upper limit to the number of function calls that can be saved. It can be changed by specifying a variable, literal, or expression after the `CACHE` keyword. Also note that the `CACHE` keyword has to appear as the last "parameter" of the function.
 
+### Classes
+Classes are defined like variables:
+```
+C = class -> a, b, c; static d, e, f
+```
+Zero or more class-specific (non-static) variables can be defined and separated with commas. Zero or more static variables can be defined after the `static` keyword. The two sections are separated with a semicolon. Note that functions are static! Static variables can be directly initialized, if needed, like so: `d = 20`. Both sections can be optionally omitted.
+
+Functions (static variables) can be defined later, outside of the class:
+```
+C = class -> static f
+C.f = () ->
+	return 1
+```
+`.` can be used to access members (any variables) within a class. If the class name is used to access a member, then that member has to be static. Otherwise, an instance of the class is needed.
+
+To construct a class, the class name can be called like a method, with all of the non-static variables as parameters, in order.
+```
+C = class -> a, b
+a = C(1, 2)
+b = C("hello", "world")
+# a and b will contain different instances of the same class C
+```
+For a function in a class to access the members of the instance of the class the function is called from, `this` can be used. For example:
+```
+C = class -> n; static f
+f = () ->
+	write(this.n)
+
+a = C(1)
+b = C(2)
+
+a.f() # writes 1
+b.f() # writes 2
+```
+
 ---
 
 ## All Object Types
@@ -228,12 +287,13 @@ Precedance | Operators | Description | Details
 7 | `-` | subtraction | Can also be used to remove a item from a list or map. (eg. `[1, 2, 3] - [2, 3]` = `[1]`, `{1: 2, 3: 4} - {1}` = `{3: 4}`)
 6 | `..` | consecutive list | Creates a list with consecutive elements, where the first index is inclusive and the last index is exclusive. (eg. `1..3` = `[1, 2]`, `1..-2` = `[1, 0, -1]`)
 5 | `>`, `<`, `>=`, `<=` | greater than, less than, greater than or equal to, less than or equal to | Strings and numbers can be compared. Lists can also be compared. Strings and lists are compared by lexicographical order.
+5 | `===` | instance of | checks if an element is an instance of a class | Lists can be used to check multiple instances and classes at once (eg. `"hello" === String`, `1 === Number`).
 4 | `==`, `!=` | equals, not equals | When matching two strings, one string can be a regex pattern. If both or none of the strings are regex then character by character matching is used.
 3 | `&&` | logical and | True only if both sides evaluate to true (non-zero) values. Note that this operator short circuits, so expressions separated by the `&&` are evaluated from left to right, and if one expression is false, it stops evaluating the others.
 2 | <code>&#124;&#124;</code> | logical or | True if either side evaluates to true (non-zero) values. Note that this operator short circuits, so expressions separated by the or operator are evaluated from left to right, and if one expression is true, it stops evaluating the others.
 1 | `() ->` | lambda/inline function definition | Basically a one line, condensed function.
 1 | `?` and `else` | ternary operator | Basically a one line, condensed if/else statement.
-0 | `=` and variants (`+=`, `*=`, etc.) | set operator | sets a variable or a list/map item to some value | Example: `a += 1` = `a = a + 1`.
+0 | `=` and variants (`+=`, `*=`, etc.) | set operator | sets a variable or a list/map item to some value | Example: `a += 1` = `a = a + 1` (Note that equals signs in an expression have higher precedance than lambda functions and ternary operators to make writing code easier).
 
 Other than `=`, all other operators do no change the state of the object being operated on. A new object is created instead.
 
@@ -276,7 +336,7 @@ lowercase | string `s` | string | converts every character in `s` to lowercase
 Function | Parameters | Returns | Uses
 --- | --- | --- | ---
 len | list or map or string `c` | number | returns the length/size of `c`
-pop | list `l`[, number `i`] | list | removes the list element in `l`, or removes the element at index `i` in `l`
+pop | list `l`[, number `i`] | list | removes the last element in `l`, or removes the element at index `i` in `l` (negative indexes start from the end)
 contains | list or map or string `c`, any object `o` (only strings if the first parameter is string) | boolean | checks if `c` contains `o`
 indexOf | list or string `c`, any object `o` (only strings if the first parameter is string) | number | finds the index of `o` in `c`, or `-1` if not found
 sort | list `l`[, function `f`] | list | sorts `l` in the elements natural ordering, or call `f` to compare pairs of items (`f` should take two parameters and return a negative value if the first value is less than the second, zero if they are equal, and a positive value if the second value is less than the first)
@@ -308,15 +368,15 @@ Function | Parameters | Returns | Uses
 --- | --- | --- | ---
 write | any object... or file writer, any object... or string (path), string (format), window | nothing | either writes all parameters to the standard output stream, writes all parameters through a file writer to a file, or writes a window's image, in a specific format, to a file
 read | string `s` or file reader | string | either reads one line from the standard input stream after printing `s`, or reads one line from a file reader
-fileReader | string `path` | file reader | creates a file reader for the file denoted by `path`
-fileWriter | string `path` | file writer | creates a file writer for the file denoted by `path`
+FileReader | string `path` | file reader | creates a file reader for the file denoted by `path`
+FileWriter | string `path` | file writer | creates a file writer for the file denoted by `path`
 hasNext | file reader | boolean | checks if the file reader has another line
 close | file reader or file writer | nothing | closes a file reader or writer (this needs to be done!)
 
 ### Drawing Related Functions
 Function | Parameters | Returns | Uses
 --- | --- | --- | ---
-window | string `title`, number `width`, number `height`, number `scale`, function `f` | window | creates a window of size `width`, `height`, where each pixel has size `scale`, and `f` is called for each pixel to determine its color (`f` should accept two parameters, the x and y values of the pixel, and it should return a list with three items containing the color of the pixel, which are from 0 to 255)
+Window | string `title`, number `width`, number `height`, number `scale`, function `f` | window | creates a window of size `width`, `height`, where each pixel has size `scale`, and `f` is called for each pixel to determine its color (`f` should accept two parameters, the x and y values of the pixel, and it should return a list with three items containing the color of the pixel, which are from 0 to 255)
 refresh | window | nothing | tells the window to redraw
 
 ### Regex
@@ -327,6 +387,13 @@ replace | string `text`, string `before`, string `after` | string | replaces all
 matchGroups | string `text`, string `regex` | list | creates a list containing all of the groups that are matched (if the text matches the regex, or else an empty list is returned)
 
 reCall's regex functions uses Java's build-in regex functions. [Here](https://docs.oracle.com/javase/8/docs/api/java/util/regex/Pattern.html) is a link to more information about Java's regex engine.
+
+### Time
+Function | Parameters | Returns | Uses
+--- | --- | --- | ---
+currTimeMS | nothing | number | gets the current time in milliseconds
+msToDuration | number `t` | string | formats `t` into a duration (`HH:mm:ss.SSS`)
+msToDate | number `t` | string | formats `t` into a date (`yyyy-MM-dd HH:mm:ss.SSS`) using the the system default time zone
 
 ### Miscellaneous
 Function | Parameters | Returns | Uses

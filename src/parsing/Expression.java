@@ -19,7 +19,6 @@ import static utils.Operators.*;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.ListIterator;
@@ -358,25 +357,48 @@ public class Expression implements Statement{
 			return curr;
 		
 		//handle inline functions
-		int rIdx = s.indexOf(')');
+		int rIdx = -1;
+		count = 0;
+		isString = false;
+		for(int i = 1; i < s.length(); i++){
+			if(!isString && count == 0 && s.charAt(i) == ')'){
+				rIdx = i;
+				break;
+			}else if(s.charAt(i) == '"') isString = !isString;
+			else if(!isString && (s.charAt(i) == '(' || s.charAt(i) == '[' || s.charAt(i) == '{')) count++;
+			else if(!isString && (s.charAt(i) == ')' || s.charAt(i) == ']' || s.charAt(i) == '}')) count--;
+		}
+		
 		if(s.charAt(0) == '(' && rIdx != -1){
-			String[] vars = s.substring(1, rIdx).split(",");
+			count = 0;
+			isString = false;
+			int prev = 1;
+			ArrayList<String> vars = new ArrayList<>();
+			for(int i = 1; i <= rIdx; i++){
+				if(i == rIdx || (!isString && count == 0 && s.charAt(i) == ',')){
+					vars.add(s.substring(prev, i));
+					prev = i + 1;
+				}else if(!isString && (s.charAt(i) == ')' || s.charAt(i) == ']' || s.charAt(i) == '}')) count++;
+				else if(!isString && (s.charAt(i) == '(' || s.charAt(i) == '[' || s.charAt(i) == '{')) count--;
+				else if(s.charAt(i) == '"') isString = !isString;
+			}
+			
 			boolean isParams = true;
-			for(int i = 0; i < vars.length; i++){
-				if(!isVarName(vars[i])){
+			for(int i = 0; i < vars.size(); i++){
+				if(!vars.get(i).startsWith("CACHE=") && !isVarName(vars.get(i))){
 					isParams = false;
 					break;
 				}
 			}
-			if(vars.length == 1 && vars[0].isEmpty()){ //no parameters
+			if(vars.size() == 1 && vars.get(0).isEmpty()){ //no parameters
 				isParams = true;
-				vars = new String[0];
+				vars = new ArrayList<String>();
 			}
 			if(isParams && s.startsWith("->", rIdx + 1)){
 				ArrayList<Statement> lines = new ArrayList<>();
 				lines.add(new ReturnStatement(s.substring(rIdx + 3), lineNum));
 				lines.add(new EndStatement());
-				return new reFunction("lambda", lines, new ArrayList<String>(Arrays.asList(vars)), lineNum, lineNum);
+				return new reFunction("lambda", lines, vars, lineNum, lineNum);
 			}
 		}
 		

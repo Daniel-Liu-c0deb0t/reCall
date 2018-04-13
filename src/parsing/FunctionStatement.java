@@ -1,7 +1,6 @@
 package parsing;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 
 import objects.reFunction;
 import objects.reObject;
@@ -16,8 +15,22 @@ public class FunctionStatement implements Statement{
 		this.var = var;
 		if(params.isEmpty())
 			this.params = new ArrayList<String>();
-		else
-			this.params = new ArrayList<String>(Arrays.asList(params.split(",")));
+		else{
+			int count = 0;
+			boolean isString = false;
+			int prev = 0;
+			ArrayList<String> res = new ArrayList<>();
+			for(int i = 0; i <= params.length(); i++){
+				if(i == params.length() || (!isString && count == 0 && params.charAt(i) == ',')){
+					res.add(params.substring(prev, i));
+					prev = i + 1;
+				}else if(!isString && (params.charAt(i) == ')' || params.charAt(i) == ']' || params.charAt(i) == '}')) count++;
+				else if(!isString && (params.charAt(i) == '(' || params.charAt(i) == '[' || params.charAt(i) == '{')) count--;
+				else if(params.charAt(i) == '"') isString = !isString;
+			}
+			
+			this.params = res;
+		}
 		this.start = start;
 	}
 	
