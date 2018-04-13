@@ -4,11 +4,11 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 
-public class reInitializedClass implements reObject, reMemberSelectable{
+public class reClassInst implements reObject, reMemberSelectable{
 	public HashMap<String, reObject> vars;
 	public reClass c;
 	
-	public reInitializedClass(reClass c, ArrayList<reObject> vars){
+	public reClassInst(reClass c, ArrayList<reObject> vars){
 		this.c = c;
 		this.vars = new HashMap<>();
 		
@@ -20,9 +20,14 @@ public class reInitializedClass implements reObject, reMemberSelectable{
 		}
 	}
 	
-	public reInitializedClass(reClass c, HashMap<String, reObject> map){
+	public reClassInst(reClass c, HashMap<String, reObject> map){
 		this.c = c;
 		this.vars = new HashMap<>(map);
+	}
+	
+	@Override
+	public String getType(){
+		return c.name;
 	}
 	
 	@Override
@@ -48,7 +53,7 @@ public class reInitializedClass implements reObject, reMemberSelectable{
 	
 	@Override
 	public reObject deepClone(){
-		return new reInitializedClass(c, vars);
+		return new reClassInst(c, vars);
 	}
 	
 	@Override
@@ -88,7 +93,7 @@ public class reInitializedClass implements reObject, reMemberSelectable{
 			return false;
 		if(getClass() != o.getClass())
 			return false;
-		if(!c.equals(((reInitializedClass)o).c) || !vars.equals(((reInitializedClass)o).vars))
+		if(!c.equals(((reClassInst)o).c) || !vars.equals(((reClassInst)o).vars))
 			return false;
 		return true;
 	}

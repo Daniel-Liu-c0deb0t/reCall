@@ -31,6 +31,11 @@ public class reNumber implements reObject, Comparable<reNumber>{
 	}
 	
 	@Override
+	public String getType(){
+		return "Number";
+	}
+	
+	@Override
 	public int toBool(){
 		return val.signum() == 0 ? 0 : 1;
 	}

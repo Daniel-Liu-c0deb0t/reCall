@@ -3,14 +3,14 @@ package parsing;
 import objects.reArrayAccessible;
 import objects.reClass;
 import objects.reFunction;
-import objects.reInitializedClass;
+import objects.reClassInst;
 import objects.reList;
 import objects.reMap;
 import objects.reMemberSelectable;
 import objects.reNumber;
 import objects.reObject;
 import objects.reString;
-import utils.Functions;
+import utils.BuiltinFunctions;
 import utils.Operators;
 import utils.Operators.Symbol;
 
@@ -265,7 +265,7 @@ public class Expression implements Statement{
 			String funcName = s.substring(0, lIdx);
 			Symbol symbol = getOperatorEnd(funcName);
 			reObject func = null;
-			reInitializedClass container = null;
+			reClassInst container = null;
 			
 			count = 0;
 			isString = false;
@@ -283,12 +283,12 @@ public class Expression implements Statement{
 			if(isFuncName(funcName))
 				func = getVarByName(funcName, start, end);
 			else if(symbol == null && funcName.charAt(funcName.length() - 1) != '='){
-				container = (reInitializedClass)recursiveCalc(funcName.substring(0, idxDot), s, start, end, lineNum);
+				container = (reClassInst)recursiveCalc(funcName.substring(0, idxDot), s, start, end, lineNum);
 				func = container.select(funcName.substring(idxDot + 1));
 			}
 			if(func != null || isFuncName(funcName)){
 				if(!funcName.equals("eval") && !(func instanceof reFunction) && !(func instanceof reClass)
-						&& !Functions.functions.containsKey(funcName)){
+						&& !BuiltinFunctions.functions.containsKey(funcName)){
 					throw new IllegalArgumentException("Bad function call using \"" + s + "\"!");
 				}
 				
@@ -314,13 +314,13 @@ public class Expression implements Statement{
 						arr[i + 1] = params.get(i);
 					}
 					arr[0] = new reNumber(new BigDecimal(lineNum));
-					return Functions.eval.apply(arr);
+					return BuiltinFunctions.eval.apply(arr);
 				}else if(func instanceof reFunction){
 					return ((reFunction)func).apply(container, params.toArray(new reObject[params.size()]));
 				}else if(func instanceof reClass){
-					return new reInitializedClass((reClass)func, params);
+					return new reClassInst((reClass)func, params);
 				}else{
-					return Functions.functions.get(funcName).func.apply(params.toArray(new reObject[params.size()]));
+					return BuiltinFunctions.functions.get(funcName).func.apply(params.toArray(new reObject[params.size()]));
 				}
 			}
 		}
@@ -332,7 +332,8 @@ public class Expression implements Statement{
 		reObject curr = null;
 		for(int i = 0; i <= s.length(); i++){
 			if(i == s.length() && curr == null) break;
-			if(!isString && count == 0 && (getOperatorStart(s.substring(i)) != null || s.startsWith("=", i))){
+			if(!isString && count == 0 && (getOperatorStart(s.substring(i)) != null
+					|| s.startsWith("=", i) || s.startsWith("?", i))){
 				curr = null;
 				break;
 			}

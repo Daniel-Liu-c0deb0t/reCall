@@ -28,7 +28,7 @@ public class reFunction implements reObject{
 		if(names.size() >= 1 && names.get(names.size() - 1).startsWith("CACHE=")){
 			String s = names.get(names.size() - 1).substring(6);
 			cacheSize = s.equals("INF") ? Integer.MAX_VALUE :
-				((reNumber)Expression.recursiveCalc(s, null, start, start, start)).val.intValue();
+				((reNumber)Expression.recursiveCalc(s, null, start, start, start)).val.intValueExact();
 			names.remove(names.size() - 1);
 		}
 		
@@ -37,7 +37,7 @@ public class reFunction implements reObject{
 		this.end = end;
 	}
 	
-	public reObject apply(reInitializedClass c, reObject[] params){
+	public reObject apply(reClassInst c, reObject[] params){
 		if(params.length != names.size())
 			throw new IllegalArgumentException("Wrong number of arguments for function call!");
 		
@@ -66,6 +66,11 @@ public class reFunction implements reObject{
 			cacheMap.put(key, res);
 		}
 		return res;
+	}
+	
+	@Override
+	public String getType(){
+		return "Function";
 	}
 	
 	@Override

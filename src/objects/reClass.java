@@ -33,6 +33,11 @@ public class reClass implements reObject, reMemberSelectable{
 	}
 	
 	@Override
+	public String getType(){
+		return name;
+	}
+	
+	@Override
 	public reObject select(String s){
 		if(varsStatic.containsKey(s)){
 			return varsStatic.get(s);

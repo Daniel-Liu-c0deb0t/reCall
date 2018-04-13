@@ -15,11 +15,13 @@ public class ClassStatement implements Statement{
 	public ClassStatement(String name, String vars, int lineNum){
 		this.name = name;
 		String[] s = vars.split(";");
-		for(int i = 0; i < s.length; i++){
-			if(s[i].startsWith("static"))
-				this.varsStatic = new ArrayList<>(Arrays.asList(s[i].substring(6).split(",")));
-			else
-				this.varsInit = new ArrayList<>(Arrays.asList(s[i].split(",")));
+		if(s.length != 1 || !s[0].isEmpty()){
+			for(int i = 0; i < s.length; i++){
+				if(s[i].startsWith("static"))
+					this.varsStatic = new ArrayList<>(Arrays.asList(s[i].substring(6).split(",")));
+				else
+					this.varsInit = new ArrayList<>(Arrays.asList(s[i].split(",")));
+			}
 		}
 		this.lineNum = lineNum;
 	}

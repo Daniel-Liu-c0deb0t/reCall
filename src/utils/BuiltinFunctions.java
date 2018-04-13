@@ -5,10 +5,15 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.math.RoundingMode;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -16,12 +21,10 @@ import javax.imageio.ImageIO;
 
 import static core.Persistent.*;
 
-import objects.reClass;
 import objects.reCloseable;
 import objects.reFileReader;
 import objects.reFileWriter;
 import objects.reFunction;
-import objects.reInitializedClass;
 import objects.reList;
 import objects.reMap;
 import objects.reNumber;
@@ -30,7 +33,7 @@ import objects.reString;
 import objects.reWindow;
 import parsing.Expression;
 
-public class Functions{
+public class BuiltinFunctions{
 	public static Function add = (params) -> {
 		if(params[0] instanceof reNumber && params[1] instanceof reNumber){
 			return new reNumber(((reNumber)params[0]).val.add(((reNumber)params[1]).val, defaultMath));
@@ -77,7 +80,7 @@ public class Functions{
 			
 			ArrayList<reObject> res = new ArrayList<>();
 			
-			for(int i = 0; i < ((reNumber)params[0]).val.intValue(); i++){
+			for(int i = 0; i < ((reNumber)params[0]).val.intValueExact(); i++){
 				ArrayList<reObject> val = params[1].getListVal();
 				for(reObject o : val){
 					res.add(o.deepClone());
@@ -92,7 +95,7 @@ public class Functions{
 			
 			StringBuilder res = new StringBuilder();
 			
-			for(int i = 0; i < ((reNumber)params[0]).val.intValue(); i++){
+			for(int i = 0; i < ((reNumber)params[0]).val.intValueExact(); i++){
 				res.append(params[1].toString());
 			}
 			
@@ -172,7 +175,7 @@ public class Functions{
 			BigDecimal intB = b.subtract(remB, defaultMath);
 			BigDecimal res = BigDecimal.ONE;
 			
-			res = Utils.intPow(a, intB.toBigInteger());
+			res = Utils.intPow(a, intB.toBigIntegerExact());
 			if(remB.compareTo(BigDecimal.ZERO) != 0)
 				res = res.multiply(BigDecimal.valueOf(Math.pow(a.doubleValue(), remB.doubleValue())), defaultMath);
 			
@@ -238,18 +241,23 @@ public class Functions{
 	};
 	
 	public static Function instanceOf = (params) -> {
-		if(params[0] instanceof reInitializedClass && params[1] instanceof reClass){
-			if(((reInitializedClass)params[0]).c.equals(params[1]))
-				return new reNumber(BigDecimal.ONE);
-			else
-				return new reNumber(BigDecimal.ZERO);
-		}else if(params[1] instanceof reInitializedClass && params[0] instanceof reClass){
-			if(((reInitializedClass)params[1]).c.equals(params[0]))
-				return new reNumber(BigDecimal.ONE);
-			else
-				return new reNumber(BigDecimal.ZERO);
+		if(params[0] instanceof reList && params[1] instanceof reList){
+			ArrayList<reObject> a = params[0].getListVal();
+			ArrayList<reObject> b = params[1].getListVal();
+			boolean res = true;
+			for(int i = 0; i < a.size(); i++){
+				if(!a.get(i).getType().equals(b.get(i).getType())){
+					res = false;
+					break;
+				}
+			}
+			return new reNumber(res ? BigDecimal.ONE : BigDecimal.ZERO);
 		}else{
-			throw new IllegalArgumentException("Bad arguments: \"" + Utils.join(params, ", ", 0, true) + "\"");
+			if(params[0].getType().equals(params[1].getType())){
+				return new reNumber(BigDecimal.ONE);
+			}else{
+				return new reNumber(BigDecimal.ZERO);
+			}
 		}
 	};
 	
@@ -272,7 +280,7 @@ public class Functions{
 				res = res.add(((reNumber)o).val, defaultMath);
 			}else if(o instanceof reList){
 				ArrayList<reObject> list = o.getListVal();
-				res = res.add(((reNumber)Functions.sum.apply(list.toArray(new reObject[list.size()]))).val, defaultMath);
+				res = res.add(((reNumber)BuiltinFunctions.sum.apply(list.toArray(new reObject[list.size()]))).val, defaultMath);
 			}else{
 				throw new IllegalArgumentException("Bad argument: \"" + o.toString() + "\"");
 			}
@@ -290,7 +298,7 @@ public class Functions{
 					res = res.max(((reNumber)o).val);
 			}else if(o instanceof reList){
 				ArrayList<reObject> list = o.getListVal();
-				BigDecimal temp = ((reNumber)Functions.max.apply(list.toArray(new reObject[list.size()]))).val;
+				BigDecimal temp = ((reNumber)BuiltinFunctions.max.apply(list.toArray(new reObject[list.size()]))).val;
 				if(res == null)
 					res = temp;
 				else
@@ -332,7 +340,7 @@ public class Functions{
 					res = res.min(((reNumber)o).val);
 			}else if(o instanceof reList){
 				ArrayList<reObject> list = o.getListVal();
-				BigDecimal temp = ((reNumber)Functions.min.apply(list.toArray(new reObject[list.size()]))).val;
+				BigDecimal temp = ((reNumber)BuiltinFunctions.min.apply(list.toArray(new reObject[list.size()]))).val;
 				if(res == null)
 					res = temp;
 				else
@@ -602,7 +610,7 @@ public class Functions{
 		}else if(params.length == 2){
 			if(params[0] instanceof reString && params[1] instanceof reNumber){
 				return new reNumber(new BigDecimal(
-						new BigInteger(((reString)params[0]).val, ((reNumber)params[1]).val.intValue()), defaultMath));
+						new BigInteger(((reString)params[0]).val, ((reNumber)params[1]).val.intValueExact()), defaultMath));
 			}else{
 				throw new IllegalArgumentException("Bad arguments: \"" + Utils.join(params, ", ", 0, true) + "\"");
 			}
@@ -617,7 +625,7 @@ public class Functions{
 		}else if(params.length == 2){
 			if(params[0] instanceof reNumber && params[1] instanceof reNumber){
 				return new reString(
-						((reNumber)params[0]).val.toBigInteger().toString(((reNumber)params[1]).val.intValue()));
+						((reNumber)params[0]).val.toBigIntegerExact().toString(((reNumber)params[1]).val.intValueExact()));
 			}else{
 				throw new IllegalArgumentException("Bad arguments: \"" + Utils.join(params, ", ", 0, true) + "\"");
 			}
@@ -675,7 +683,7 @@ public class Functions{
 			throw new IllegalArgumentException("Only 1 parameter(s) allowed!");
 		
 		if(params[0] instanceof reNumber){
-			return new reString(((char)((reNumber)params[0]).val.intValue()) + "");
+			return new reString(((char)((reNumber)params[0]).val.intValueExact()) + "");
 		}else{
 			throw new IllegalArgumentException("Bad argument: \"" + params[0].toString() + "\"");
 		}
@@ -834,7 +842,7 @@ public class Functions{
 		if(params[0] instanceof reList && params[1] instanceof reNumber){
 			ArrayList<reObject> res = new ArrayList<>();
 			ArrayList<reObject> list = params[0].getListVal();
-			BigInteger mask = ((reNumber)params[1]).val.toBigInteger();
+			BigInteger mask = ((reNumber)params[1]).val.toBigIntegerExact();
 			
 			for(int i = 0; i < list.size(); i++){
 				if(mask.testBit(i)){
@@ -860,7 +868,7 @@ public class Functions{
 		}else if(params.length == 2){
 			if(params[0] instanceof reList && params[1] instanceof reNumber){
 				ArrayList<reObject> res = new ArrayList<>(params[0].getListVal());
-				int idx = ((reNumber)params[1]).val.intValue();
+				int idx = ((reNumber)params[1]).val.intValueExact();
 				res.remove(idx < 0 ? res.size() + idx : idx);
 				return new reList(res);
 			}else{
@@ -975,7 +983,7 @@ public class Functions{
 		
 		if(params[1] instanceof reNumber && params[2] instanceof reFunction){
 			reObject curr = params[0];
-			int n = ((reNumber)params[1]).val.intValue(); //should fit!
+			int n = ((reNumber)params[1]).val.intValueExact(); //should fit!
 			for(int i = 1; i < n; i++){
 				curr = ((reFunction)params[2]).apply(null,
 						new reObject[]{new reNumber(new BigDecimal(i)), curr});
@@ -1003,7 +1011,7 @@ public class Functions{
 		if(params[1] instanceof reNumber && params[2] instanceof reFunction){
 			ArrayList<reObject> res = new ArrayList<>();
 			res.add(params[0]);
-			int n = ((reNumber)params[1]).val.intValue(); //should fit!
+			int n = ((reNumber)params[1]).val.intValueExact(); //should fit!
 			for(int i = 1; i < n; i++){
 				res.add(((reFunction)params[2]).apply(null,
 						new reObject[]{new reNumber(new BigDecimal(i)), res.get(res.size() - 1)}));
@@ -1030,7 +1038,7 @@ public class Functions{
 			throw new IllegalArgumentException("Only 2 parameter(s) allowed!");
 		
 		if(params[0] instanceof reNumber && params[1] instanceof reNumber){
-			return new reNumber(((reNumber)params[0]).val.setScale(((reNumber)params[1]).val.intValue(), defaultRounding));
+			return new reNumber(((reNumber)params[0]).val.setScale(((reNumber)params[1]).val.intValueExact(), defaultRounding));
 		}else{
 			throw new IllegalArgumentException("Bad arguments: \"" + Utils.join(params, ", ", 0, true) + "\"");
 		}
@@ -1076,8 +1084,8 @@ public class Functions{
 		
 		if(params[0] instanceof reString && params[1] instanceof reNumber &&
 				params[2] instanceof reNumber && params[3] instanceof reNumber && params[4] instanceof reFunction){
-			return new reWindow(params[0].toString(), ((reNumber)params[1]).val.intValue(),
-					((reNumber)params[2]).val.intValue(), ((reNumber)params[3]).val.intValue(), (reFunction)params[4]);
+			return new reWindow(params[0].toString(), ((reNumber)params[1]).val.intValueExact(),
+					((reNumber)params[2]).val.intValueExact(), ((reNumber)params[3]).val.intValueExact(), (reFunction)params[4]);
 		}else{
 			throw new IllegalArgumentException("Bad arguments: \"" + Utils.join(params, ", ", 0, true) + "\"");
 		}
@@ -1100,7 +1108,7 @@ public class Functions{
 			throw new IllegalArgumentException("Only 1 parameter(s) allowed!");
 		
 		if(params[1] instanceof reString){ //the first argument is only used to pass along the line number
-			int line = ((reNumber)params[0]).val.intValue();
+			int line = ((reNumber)params[0]).val.intValueExact();
 			return Expression.recursiveCalc(Utils.removeSpaces(params[1].toString()), null, line, line, line);
 		}else{
 			throw new IllegalArgumentException("Bad argument: \"" + Utils.join(params, ", ", 1, true) + "\"");
@@ -1167,9 +1175,49 @@ public class Functions{
 		}
 	};
 	
+	public static Function currTime = (params) -> {
+		if(params.length != 0)
+			throw new IllegalArgumentException("No parameters allowed!");
+		
+		return new reNumber(new BigDecimal(System.currentTimeMillis(), defaultMath));
+	};
+	
+	public static Function formatDuration = (params) -> {
+		if(params.length != 1)
+			throw new IllegalArgumentException("Only 1 parameter(s) allowed!");
+		
+		if(params[0] instanceof reNumber){
+			long t = ((reNumber)params[0]).val.longValueExact();
+			long h = TimeUnit.MILLISECONDS.toHours(t);
+			long m = TimeUnit.MILLISECONDS.toMinutes(t) % 60;
+			long s = TimeUnit.MILLISECONDS.toSeconds(t) % 60;
+			long ms = TimeUnit.MILLISECONDS.toMillis(t) % 1000;
+			return new reString(String.format("%02d:%02d:%02d.%03d", h, m, s, ms));
+		}else{
+			throw new IllegalArgumentException("Bad argument: \"" + params[0].toString() + "\"");
+		}
+	};
+	
+	public static Function formatDate = (params) -> {
+		if(params.length != 1)
+			throw new IllegalArgumentException("Only 1 parameter(s) allowed!");
+		
+		if(params[0] instanceof reNumber){
+			long t = ((reNumber)params[0]).val.longValueExact();
+			return new reString(LocalDateTime.ofInstant(Instant.ofEpochMilli(t), ZoneId.systemDefault()).format(
+					DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS")));
+		}else{
+			throw new IllegalArgumentException("Bad argument: \"" + params[0].toString() + "\"");
+		}
+	};
+	
 	public static HashMap<String, DefaultFunction> functions = new HashMap<>();
 	
 	static{
+		functions.put("currTimeMS", new DefaultFunction(currTime, "current time in milliseconds"));
+		functions.put("msToDuration", new DefaultFunction(formatDuration, "converts milliseconds to a duration string"));
+		functions.put("msToDate", new DefaultFunction(formatDate, "converts milliseconds to a date string"));
+		
 		functions.put("num", new DefaultFunction(toNumber, "casts to a number"));
 		functions.put("round", new DefaultFunction(round, "rounds a number"));
 		
@@ -1215,14 +1263,14 @@ public class Functions{
 		functions.put("generateList", new DefaultFunction(generateList, "generates a list using the parameter function(s)"));
 		functions.put("zip", new DefaultFunction(zip, "take one of every list, per list item (transpose)"));
 		
-		functions.put("fileReader", new DefaultFunction(createFileReader, "creates a file reader"));
-		functions.put("fileWriter", new DefaultFunction(createFileWriter, "creates a file writer"));
+		functions.put("FileReader", new DefaultFunction(createFileReader, "creates a file reader"));
+		functions.put("FileWriter", new DefaultFunction(createFileWriter, "creates a file writer"));
 		functions.put("close", new DefaultFunction(closeFileIO, "closes a file reader or file writer"));
 		functions.put("write", new DefaultFunction(println, "writes/prints output"));
 		functions.put("read", new DefaultFunction(readLine, "reads input"));
 		functions.put("hasNext", new DefaultFunction(hasNextLine, "checks if the file has a next line"));
 		
-		functions.put("window", new DefaultFunction(createWindow, "creates a new drawable window"));
+		functions.put("Window", new DefaultFunction(createWindow, "creates a new drawable window"));
 		functions.put("refresh", new DefaultFunction(refreshWindow, "refreshes/redraws a window"));
 		
 		//the function, eval(), is not listed here!

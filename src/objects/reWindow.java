@@ -32,6 +32,11 @@ public class reWindow implements reObject{
 	}
 	
 	@Override
+	public String getType(){
+		return "Window";
+	}
+	
+	@Override
 	public String toString(){
 		return "Window: \"" + frame.getTitle() + "\"";
 	}

@@ -155,9 +155,9 @@ public class Utils{
 	}
 	
 	public static int getRGB(ArrayList<reObject> arr){
-		int r = ((reNumber)arr.get(0)).val.intValue();
-		int g = ((reNumber)arr.get(1)).val.intValue();
-		int b = ((reNumber)arr.get(2)).val.intValue();
+		int r = ((reNumber)arr.get(0)).val.intValueExact();
+		int g = ((reNumber)arr.get(1)).val.intValueExact();
+		int b = ((reNumber)arr.get(2)).val.intValueExact();
 		return ((r & 0x0FF) << 16) | ((g & 0x0FF) << 8) | (b & 0x0FF);
 	}
 	
@@ -165,7 +165,7 @@ public class Utils{
 	private static BigInteger two = new BigInteger("2");
 	public static BigDecimal intPow(BigDecimal a, BigInteger b){
 		if(b.compareTo(maxExp) <= 0){
-			return a.pow(b.intValue(), defaultMath);
+			return a.pow(b.intValueExact(), defaultMath);
 		}
 		
 		BigDecimal x = intPow(a, b.divide(two));

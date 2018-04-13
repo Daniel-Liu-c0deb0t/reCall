@@ -3,9 +3,9 @@ package utils;
 import java.util.ArrayList;
 import java.util.Collections;
 
-import utils.Functions.Function;
+import utils.BuiltinFunctions.Function;
 
-import static utils.Functions.*;
+import static utils.BuiltinFunctions.*;
 
 public class Operators{
 	public static ArrayList<Symbol> operators = new ArrayList<>();

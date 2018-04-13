@@ -14,6 +14,11 @@ public class reString implements reArrayAccessible, Comparable<reString>{
 	}
 	
 	@Override
+	public String getType(){
+		return "String";
+	}
+	
+	@Override
 	public int toBool(){
 		return val.isEmpty() ? 0 : 1;
 	}
@@ -72,7 +77,7 @@ public class reString implements reArrayAccessible, Comparable<reString>{
 			if(o == null)
 				arr.add(null);
 			else
-				arr.add(((reNumber)o).val.intValue());
+				arr.add(((reNumber)o).val.intValueExact());
 		}
 		
 		if(arr.size() > 0 && arr.get(0) == null) arr.set(0, 0);

@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 
 import objects.reArrayAccessible;
+import objects.reClassInst;
 import objects.reList;
 import objects.reMemberSelectable;
 import objects.reObject;
@@ -53,10 +54,19 @@ public class SetStatement implements Statement{
 		if(vars.size() == 1){
 			set(vars.get(0), res, start, end, lineNum);
 		}else{
-			if(res instanceof reList){
+			if(res instanceof reList){ //unpack list
 				if(vars.size() == res.getListVal().size()){
 					for(int i = 0; i < vars.size(); i++){
 						set(vars.get(i), res.getListVal().get(i), start, end, lineNum);
+					}
+				}else{
+					throw new IllegalArgumentException("The expression, \"" + exp + "\", cannot be unpacked into " + vars.size() + " elements!");
+				}
+			}else if(res instanceof reClassInst){ //unpack class variables
+				if(vars.size() == ((reClassInst)res).vars.size()){
+					for(int i = 0; i < vars.size(); i++){
+						reObject o = ((reClassInst)res).vars.get(((reClassInst)res).c.order.get(i));
+						set(vars.get(i), o, start, end, lineNum);
 					}
 				}else{
 					throw new IllegalArgumentException("The expression, \"" + exp + "\", cannot be unpacked into " + vars.size() + " elements!");

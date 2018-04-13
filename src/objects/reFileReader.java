@@ -18,6 +18,11 @@ public class reFileReader implements reCloseable{
 	}
 	
 	@Override
+	public String getType(){
+		return "FileReader";
+	}
+	
+	@Override
 	public void close() throws IOException{
 		reader.close();
 	}

@@ -27,6 +27,11 @@ public class reFileWriter implements reCloseable{
 	}
 	
 	@Override
+	public String getType(){
+		return "FileWriter";
+	}
+	
+	@Override
 	public String toString(){
 		return "File writer: \"" + path + "\"";
 	}

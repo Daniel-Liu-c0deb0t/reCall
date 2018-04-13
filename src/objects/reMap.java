@@ -13,6 +13,11 @@ public class reMap implements reArrayAccessible{
 	}
 	
 	@Override
+	public String getType(){
+		return "Map";
+	}
+	
+	@Override
 	public int toBool(){
 		return val.isEmpty() ? 0 : 1;
 	}

@@ -5,8 +5,10 @@ import java.math.BigDecimal;
 import java.math.MathContext;
 import java.math.RoundingMode;
 import java.util.ArrayDeque;
+import java.util.ArrayList;
 import java.util.HashMap;
 
+import objects.reClass;
 import objects.reNumber;
 import objects.reObject;
 
@@ -26,6 +28,15 @@ public class Persistent{
 		
 		stack.peek().vars.put("E", new reNumber(constE));
 		stack.peek().vars.put("PI", new reNumber(constPI));
+		
+		stack.peek().vars.put("Number", new reClass("Number", new ArrayList<String>(), new ArrayList<String>(), -1));
+		stack.peek().vars.put("String", new reClass("String", new ArrayList<String>(), new ArrayList<String>(), -1));
+		stack.peek().vars.put("List", new reClass("List", new ArrayList<String>(), new ArrayList<String>(), -1));
+		stack.peek().vars.put("Map", new reClass("Map", new ArrayList<String>(), new ArrayList<String>(), -1));
+		stack.peek().vars.put("Function", new reClass("Function", new ArrayList<String>(), new ArrayList<String>(), -1));
+		stack.peek().vars.put("FileReader", new reClass("FileReader", new ArrayList<String>(), new ArrayList<String>(), -1));
+		stack.peek().vars.put("FileWriter", new reClass("FileWriter", new ArrayList<String>(), new ArrayList<String>(), -1));
+		stack.peek().vars.put("Window", new reClass("Window", new ArrayList<String>(), new ArrayList<String>(), -1));
 	}
 	
 	public static class StackItem{

@@ -6,4 +6,5 @@ public interface reObject{
 	public reObject deepClone();
 	public ArrayList<reObject> getListVal();
 	public int toBool();
+	public String getType();
 }
