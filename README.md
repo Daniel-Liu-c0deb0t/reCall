@@ -287,13 +287,13 @@ Precedance | Operators | Description | Details
 7 | `-` | subtraction | Can also be used to remove a item from a list or map. (eg. `[1, 2, 3] - [2, 3]` = `[1]`, `{1: 2, 3: 4} - {1}` = `{3: 4}`)
 6 | `..` | consecutive list | Creates a list with consecutive elements, where the first index is inclusive and the last index is exclusive. (eg. `1..3` = `[1, 2]`, `1..-2` = `[1, 0, -1]`)
 5 | `>`, `<`, `>=`, `<=` | greater than, less than, greater than or equal to, less than or equal to | Strings and numbers can be compared. Lists can also be compared. Strings and lists are compared by lexicographical order.
-5 | `===` | instance of | checks if an element is an instance of a class | Lists can be used to check multiple instances and classes at once (eg. `"hello" === String`, `1 === Number`).
+5 | `===` | instance of (checks if an element is an instance of a class) | Lists can be used to check multiple instances and classes at once (eg. `"hello" === String`, `1 === Number`, `["hello", 123] === [String, Number]`).
 4 | `==`, `!=` | equals, not equals | When matching two strings, one string can be a regex pattern. If both or none of the strings are regex then character by character matching is used.
 3 | `&&` | logical and | True only if both sides evaluate to true (non-zero) values. Note that this operator short circuits, so expressions separated by the `&&` are evaluated from left to right, and if one expression is false, it stops evaluating the others.
 2 | <code>&#124;&#124;</code> | logical or | True if either side evaluates to true (non-zero) values. Note that this operator short circuits, so expressions separated by the or operator are evaluated from left to right, and if one expression is true, it stops evaluating the others.
-1 | `() ->` | lambda/inline function definition | Basically a one line, condensed function.
-1 | `?` and `else` | ternary operator | Basically a one line, condensed if/else statement.
-0 | `=` and variants (`+=`, `*=`, etc.) | set operator | sets a variable or a list/map item to some value | Example: `a += 1` = `a = a + 1` (Note that equals signs in an expression have higher precedance than lambda functions and ternary operators to make writing code easier).
+1 | `() ->` | lambda/inline function definition | Basically a single-line, condensed function.
+1 | `?` and `else` | ternary operator | Basically a single-line, condensed if/else statement.
+0 | `=` and variants (`+=`, `*=`, etc.) | set operator | sets a variable or a list/map item to some value | Example: `a += 1` = `a = a + 1` (Note that equals signs that appear within expressions have higher precedance than lambda functions and ternary operators to make writing code easier).
 
 Other than `=`, all other operators do no change the state of the object being operated on. A new object is created instead.
 
