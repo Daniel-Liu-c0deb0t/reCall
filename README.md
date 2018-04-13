@@ -279,7 +279,7 @@ Precedance | Operators | Description | Details
 10 | `-` and `+` | unary negation (eg. `-1`, `-3.5`) and unary plus | Note that this has higher precedance than the exponentiate operator!
 10 | `!` | unary logical not (eg. `!1` = `0`, `!0` = `1`) |
 9 | `**` | exponentiate/power function. (eg. `2 ** 4` = `16`) | This has lower precedance than the unary negation operator! (eg. `-1 ** 2` = `1`)
-8 | `*` | multiply | Can also duplicate strings and arrays (performs a deep copy!, eg. `[1, 2, 3] * 2` = `[1, 2, 3, 1, 2, 3]`)
+8 | `*` | multiply | Can also duplicate strings and arrays (performs a deep copy!, eg. `[1, 2, 3] * 2` = `[1, 2, 3, 1, 2, 3]`). If two lists are multiplied, then their Cartesian product will be computed.
 8 | `/` | divide | Can also split one string by another (eg. `"hello world" / " "` = `["hello", "world"]`). The delimiter string can be a regex pattern.
 8 | `//` | floor division | Divide, but round down (floor) to an integer
 8 | `%` | modulo/remainder | Can also be used in string formatting (eg. `"List: %s" % [1, 2, 3]` = `"List: [1, 2, 3]"`, usually `%s` (for strings) and `%f` (for numbers) are used)

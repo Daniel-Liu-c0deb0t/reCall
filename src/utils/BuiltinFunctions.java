@@ -10,6 +10,7 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.concurrent.ThreadLocalRandom;
@@ -100,6 +101,18 @@ public class BuiltinFunctions{
 			}
 			
 			return new reString(res.toString());
+		}else if(params[0] instanceof reList && params[1] instanceof reList){ //cartesian product
+			ArrayList<reObject> a = params[0].getListVal();
+			ArrayList<reObject> b = params[1].getListVal();
+			ArrayList<reObject> res = new ArrayList<>();
+			
+			for(reObject o1 : a){
+				for(reObject o2 : b){
+					res.add(new reList(new ArrayList<reObject>(Arrays.asList(o1, o2))));
+				}
+			}
+			
+			return new reList(res);
 		}
 		
 		throw new IllegalArgumentException("Bad arguments: \"" + Utils.join(params, ", ", 0, true) + "\"");
