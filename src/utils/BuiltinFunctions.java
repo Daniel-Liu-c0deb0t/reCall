@@ -1174,12 +1174,48 @@ public class BuiltinFunctions{
 				if(m.matches()){
 					ArrayList<reObject> res = new ArrayList<>();
 					for(int i = 0; i < m.groupCount(); i++){
-						res.add(new reString(m.group(i + 1)));
+						ArrayList<reObject> arr = new ArrayList<>();
+						arr.add(new reString(m.group(i + 1)));
+						arr.add(new reNumber(new BigDecimal(m.start(i + 1))));
+						arr.add(new reNumber(new BigDecimal(m.end(i + 1))));
+						res.add(new reList(arr));
 					}
 					return new reList(res);
 				}else{
 					return new reList(new ArrayList<reObject>());
 				}
+			}else{
+				throw new IllegalArgumentException("Bad arguments: \"" + Utils.join(params, ", ", 0, true) + "\"");
+			}
+		}else{
+			throw new IllegalArgumentException("Bad arguments: \"" + Utils.join(params, ", ", 0, true) + "\"");
+		}
+	};
+	
+	public static Function find = (params) -> {
+		if(params.length != 2)
+			throw new IllegalArgumentException("Only 2 parameter(s) allowed!");
+		
+		if(params[0] instanceof reString && params[1] instanceof reString){
+			reString s1 = (reString)params[0];
+			reString s2 = (reString)params[1];
+			
+			if((s1.isRegex || s2.isRegex) && (!s1.isRegex || !s2.isRegex)){ //only one string is regex
+				String regex = s1.isRegex ? s1.val : s2.val;
+				String text = s1.isRegex ? s2.val : s1.val;
+				Pattern p = Pattern.compile(regex);
+				Matcher m = p.matcher(text);
+				ArrayList<reObject> res = new ArrayList<>();
+				
+				while(m.find()){
+					ArrayList<reObject> arr = new ArrayList<>();
+					arr.add(new reString(m.group()));
+					arr.add(new reNumber(new BigDecimal(m.start())));
+					arr.add(new reNumber(new BigDecimal(m.end())));
+					res.add(new reList(arr));
+				}
+				
+				return new reList(res);
 			}else{
 				throw new IllegalArgumentException("Bad arguments: \"" + Utils.join(params, ", ", 0, true) + "\"");
 			}
@@ -1212,6 +1248,47 @@ public class BuiltinFunctions{
 			return new reString(new String(res));
 		}else{
 			throw new IllegalArgumentException("Bad argument: \"" + params[0].toString() + "\"");
+		}
+	};
+	
+	public static Function set = (params) -> {
+		if(params.length != 3)
+			throw new IllegalArgumentException("Only 3 parameter(s) allowed!");
+		
+		if(params[0] instanceof reList && params[1] instanceof reNumber){
+			ArrayList<reObject> res = new ArrayList<>(params[0].getListVal());
+			int idx = ((reNumber)params[1]).val.intValueExact();
+			res.set(idx < 0 ? res.size() + idx : idx, params[2]);
+			return new reList(res);
+		}else if(params[0] instanceof reMap){
+			HashMap<reObject, reObject> res = new HashMap<>(((reMap)params[0]).val);
+			res.put(params[1], params[2]);
+			return new reMap(res);
+		}else{
+			throw new IllegalArgumentException("Bad arguments: \"" + Utils.join(params, ", ", 0, true) + "\"");
+		}
+	};
+	
+	public static Function pushList = (params) -> {
+		if(params.length == 2){
+			if(params[0] instanceof reList){
+				ArrayList<reObject> res = new ArrayList<>(params[0].getListVal());
+				res.add(params[1]);
+				return new reList(res);
+			}else{
+				throw new IllegalArgumentException("Bad arguments: \"" + Utils.join(params, ", ", 0, true) + "\"");
+			}
+		}else if(params.length == 3){
+			if(params[0] instanceof reList && params[1] instanceof reNumber){
+				ArrayList<reObject> res = new ArrayList<>(params[0].getListVal());
+				int idx = ((reNumber)params[1]).val.intValueExact();
+				res.add(idx < 0 ? res.size() + idx : idx, params[2]);
+				return new reList(res);
+			}else{
+				throw new IllegalArgumentException("Bad arguments: \"" + Utils.join(params, ", ", 0, true) + "\"");
+			}
+		}else{
+			throw new IllegalArgumentException("Only 2 or 3 parameter(s) allowed!");
 		}
 	};
 	
@@ -1281,8 +1358,8 @@ public class BuiltinFunctions{
 		functions.put("acos", new DefaultFunction(acos, "calculates arccos"));
 		functions.put("atan", new DefaultFunction(atan, "calculates arctan"));
 		
-		functions.put("contains", new DefaultFunction(contains, "checks if the collections contains some value"));
-		functions.put("indexOf", new DefaultFunction(indexOf, "gets the index of some value in the collection or -1"));
+		functions.put("contains", new DefaultFunction(contains, "checks if the string, list, or map contains some value"));
+		functions.put("indexOf", new DefaultFunction(indexOf, "gets the index of some value in the string or list, or returns -1"));
 		functions.put("count", new DefaultFunction(count, "creates a map of each distinct element and the number of times it appears in the list"));
 		functions.put("keyList", new DefaultFunction(keyList, "creates a list containing all of the keys in a map"));
 		functions.put("valList", new DefaultFunction(valList, "creates a list containing all of the values in a map"));
@@ -1291,7 +1368,9 @@ public class BuiltinFunctions{
 		functions.put("randFloat", new DefaultFunction(randomFloat, "returns a random float"));
 		functions.put("shuffle", new DefaultFunction(shuffleList, "shuffles a list"));
 		
-		functions.put("len", new DefaultFunction(length, "length of a list, set, or string"));
+		functions.put("len", new DefaultFunction(length, "length of a list, map, or string"));
+		functions.put("set", new DefaultFunction(set, "sets an item in a list or map"));
+		functions.put("push", new DefaultFunction(pushList, "add an item to a list"));
 		functions.put("pop", new DefaultFunction(popList, "removes an item from the list"));
 		functions.put("reverse", new DefaultFunction(reverse, "reverses a string or a list"));
 		functions.put("sort", new DefaultFunction(sortList, "sorts the list"));
@@ -1318,8 +1397,9 @@ public class BuiltinFunctions{
 		//it is separately handled!
 		
 		functions.put("regex", new DefaultFunction(regex, "converts a string to a regex"));
-		functions.put("replace", new DefaultFunction(replace, "replaces all of occurences of one string (can be regex) with another"));
+		functions.put("replaceAll", new DefaultFunction(replace, "replaces all of occurrences of one string (can be regex) with another"));
 		functions.put("matchGroups", new DefaultFunction(matchGroups, "creates a list of captured groups if matching"));
+		functions.put("findAll", new DefaultFunction(find, "creates a list of all occurrences of a regex in a string"));
 	}
 	
 	public static class DefaultFunction{

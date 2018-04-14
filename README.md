@@ -336,9 +336,11 @@ lowercase | string `s` | string | converts every character in `s` to lowercase
 Function | Parameters | Returns | Uses
 --- | --- | --- | ---
 len | list or map or string `c` | number | returns the length/size of `c`
+set | list `l`[, number `i`], any object `val` or map `m`[, any object `key`], any object `val` | list or map | sets element at index `i` (negative indexes start from the end) in `l` to `val`, or sets the value at `key` to `val` in `m`
+push | list `l`[, number `i`], any object `o` | list | adds `o` to the end of the list or inserts it at index `i` (negative indexes start from the end)
 pop | list `l`[, number `i`] | list | removes the last element in `l`, or removes the element at index `i` in `l` (negative indexes start from the end)
 contains | list or map or string `c`, any object `o` (only strings if the first parameter is string) | boolean | checks if `c` contains `o`
-indexOf | list or string `c`, any object `o` (only strings if the first parameter is string) | number | finds the index of `o` in `c`, or `-1` if not found
+indexOf | list or string `c`, any object `o` (only strings if the first parameter is string) | number | finds the index of `o` in `c`, or `-1` if not found (does not handle regex!)
 sort | list `l`[, function `f`] | list | sorts `l` in the elements natural ordering, or call `f` to compare pairs of items (`f` should take two parameters and return a negative value if the first value is less than the second, zero if they are equal, and a positive value if the second value is less than the first)
 reverse | list or string `c` | list or string | reverses `c`
 count | list or string `c` | map | creates a map with all of the items/characters in `c` as keys, and a counter counting how many duplicates for each item/character as values
@@ -384,8 +386,9 @@ refresh | window | nothing | tells the window to redraw
 Function | Parameters | Returns | Uses
 --- | --- | --- | ---
 regex | string `s` | string | converts `s` to a regex pattern
-replace | string `text`, string `before`, string `after` | string | replaces all occurrences of `before` (can be regex) with `after` in `text` (`after` can backreference to groups in `before`)
-matchGroups | string `text`, string `regex` | list | creates a list containing all of the groups that are matched (if the text matches the regex, or else an empty list is returned)
+replaceAll | string `text`, string `before`, string `after` | string | replaces all occurrences of `before` (can be regex) with `after` in `text` (`after` can backreference to groups in `before`)
+matchGroups | string `text`, string `regex` | list | creates a list containing information on all of the groups (which are grouped by `()`) that are matched (if the text matches the regex, or else an empty list is returned), where each element in the list is in format `[string, start, end]`
+findAll | string `text`, string `regex` | list | creates a list containing information on all of the matched locations after `regex` is searched for in `text`, where each element in the list is in format `[string, start, end]`
 
 reCall's regex functions uses Java's build-in regex functions. [Here](https://docs.oracle.com/javase/8/docs/api/java/util/regex/Pattern.html) is a link to more information about Java's regex engine.
 
@@ -401,7 +404,7 @@ Function | Parameters | Returns | Uses
 --- | --- | --- | ---
 eval | string | any object | evaluates a single-line reCall **expression** and returns the value produced
 
-Note that none of the built-in functions changes the state of its parameters or anything outside of it. However, user defined callback functions can.
+Note that none of the built-in functions changes the state of its parameters or anything outside of it. They are all "pure" functions that create copies with changes that happen!
 
 ## Tips
 - Use implicit loops (eg. `map`, `filter`, `reduce`, `generate`, etc.) instead of recursion to reduce memory needs
