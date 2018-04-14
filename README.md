@@ -162,7 +162,7 @@ If an if/else statement is needed in one line, then the ternary operator variant
 Each block of code has its own scope. This means that variables created within an if/else block **cannot** be accessed outside of it, while the code inside the if/else block can access variables defined outside of it. However, changes applied to variables outside of the if/else block will still stick.
 
 ### Functions
-reCall's functions are divided into two categories: user (programmer) defined and built-in functions. They can both be called in the same way. User defined functions have higher precedance than built-in functions, so built-in functions can be overridden by user defined functions.
+reCall's functions are divided into two categories: user (programmer) defined and built-in functions. They can both be called in the same way. User defined functions have higher precedance than built-in functions, so built-in functions can be overridden by user defined functions. Function arguments are pass by (object reference) value, just like in Java and Python.
 
 Calling a function is very simple. For example, to calculate the log base 2 of 8, the log function can be used like so: `log(2, 8)`. Parameters that are passed into the function are separated by commas. The parentheses are necessary for function calls without any paramenters! The parameters can be expressions, variables, or literal values. A very useful function is the `write` function, which prints whatever value that is given to it out to the standard output stream.
 
