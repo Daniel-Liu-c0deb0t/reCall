@@ -340,7 +340,8 @@ pop | list `l`[, number `i`] | list | removes the last element in `l`, or remove
 contains | list or map or string `c`, any object `o` (only strings if the first parameter is string) | boolean | checks if `c` contains `o`
 indexOf | list or string `c`, any object `o` (only strings if the first parameter is string) | number | finds the index of `o` in `c`, or `-1` if not found
 sort | list `l`[, function `f`] | list | sorts `l` in the elements natural ordering, or call `f` to compare pairs of items (`f` should take two parameters and return a negative value if the first value is less than the second, zero if they are equal, and a positive value if the second value is less than the first)
-count | list `l` | map | creates a map with all of the items in `l` as keys, and a counter counting how many duplicates for each item as values
+reverse | list or string `c` | list or string | reverses `c`
+count | list or string `c` | map | creates a map with all of the items/characters in `c` as keys, and a counter counting how many duplicates for each item/character as values
 keyList | map `m` | list | creates a list containing all of the keys in `m`, in arbitrary order
 valList | map `m` | list | creates a list containing all of the values in `m`, in arbitrary order
 zip | list of lists `l` | list of lists | creates a new list where each item in the new list contains an item from each list in `l` (eg. `zip([[1, 2], [3, 4], [5, 6]])` = `[[1, 3, 5], [2, 4, 6]]`, this operation is also known as transposition)

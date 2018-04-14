@@ -1188,6 +1188,33 @@ public class BuiltinFunctions{
 		}
 	};
 	
+	public static Function reverse = (params) -> {
+		if(params.length != 1)
+			throw new IllegalArgumentException("Only 1 parameter(s) allowed!");
+		
+		if(params[0] instanceof reList){
+			ArrayList<reObject> arr = params[0].getListVal();
+			ArrayList<reObject> res = new ArrayList<>();
+			
+			for(int i = arr.size() - 1; i >= 0; i--){
+				res.add(arr.get(i));
+			}
+			
+			return new reList(res);
+		}else if(params[0] instanceof reString){
+			String s = params[0].toString();
+			char[] res = new char[s.length()];
+			
+			for(int i = 0; i < s.length(); i++){
+				res[i] = s.charAt(s.length() - 1 - i);
+			}
+			
+			return new reString(new String(res));
+		}else{
+			throw new IllegalArgumentException("Bad argument: \"" + params[0].toString() + "\"");
+		}
+	};
+	
 	public static Function currTime = (params) -> {
 		if(params.length != 0)
 			throw new IllegalArgumentException("No parameters allowed!");
@@ -1266,6 +1293,7 @@ public class BuiltinFunctions{
 		
 		functions.put("len", new DefaultFunction(length, "length of a list, set, or string"));
 		functions.put("pop", new DefaultFunction(popList, "removes an item from the list"));
+		functions.put("reverse", new DefaultFunction(reverse, "reverses a string or a list"));
 		functions.put("sort", new DefaultFunction(sortList, "sorts the list"));
 		functions.put("nextPerm", new DefaultFunction(nextPermutation, "gets next lexicographically larger permutation"));
 		functions.put("maskList", new DefaultFunction(maskList, "creates a sublist of a list using an integer mask"));
