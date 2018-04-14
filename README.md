@@ -14,7 +14,7 @@ Run the interpreter by downloading the compiled `reCall_interpreter.jar` and usi
 ```
 java -Xss10m -jar reCall_interpreter.jar /path/to/source/code.re
 ```
-To test that the installation works, run the `.jar` without any source code file and it will show a greeting.
+To test that the installation works, run the `.jar` without any source code file and it will show a greeting. If the source code file is invalid, then the greeting will also be displayed.
 
 The source code file should end with `.re`, although any extension will work fine. The `-Xss` command for the Java Runtime Environment allows the program to use more memory for the stack size. reCall is quite memory hungry when doing recursion, so the `-Xss` command is almost necessary.
 
@@ -43,7 +43,7 @@ fact = (n) ->
 	
 	return n * fact(n - 1)
 
-n = 250
+n = 50
 write("The factorial of %.0f is %.0f!" % [n, fact(n)])
 ```
 Finally, here is an example showing off reCall's basic object oriented features:
@@ -65,7 +65,7 @@ list = assign() # make a few assignments in a list
 
 # lets see what we need to do
 map(list, (i, x) -> write((x.dueTomorrow ? "Gotta do %.0f pages of my %s before tomorrow!" \
-										else "Gotta do %.0f pages of my %s... not!") % [x.pages, x.name]))
+					else "Gotta do %.0f pages of my %s... not!") % [x.pages, x.name]))
 
 # ok, we are only doing the ones that are due tomorrow
 map(filter(list, (i, x) -> x.dueTomorrow), (i, x) -> x.doIt(randInt(0, 120)))
@@ -407,4 +407,4 @@ Note that none of the built-in functions changes the state of its parameters or 
 - Use implicit loops (eg. `map`, `filter`, `reduce`, `generate`, etc.) instead of recursion to reduce memory needs
 - Use `\` at the very end of a line to tell the interpreter that the next line continues that line. This can be used make long, single-line statements multi-line
 - Use `\n` in strings to indicate a newline. To escape the `\n`, use `\\n`.
-- Everything in an expressions is evaluated in order, which means that function calls and variable access are postponed until they are needed.
+- Everything in an expression is evaluated in order, which means that function calls and variable access are done in the order of operations.
