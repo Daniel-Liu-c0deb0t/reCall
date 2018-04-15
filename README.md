@@ -344,9 +344,11 @@ indexOf | list or string `c`, any object `o` (only strings if the first paramete
 sort | list `l`[, function `f`] | list | sorts `l` in the elements natural ordering, or call `f` to compare pairs of items (`f` should take two parameters and return a negative value if the first value is less than the second, zero if they are equal, and a positive value if the second value is less than the first)
 reverse | list or string `c` | list or string | reverses `c`
 count | list or string `c` | map | creates a map with all of the items/characters in `c` as keys, and a counter counting how many duplicates for each item/character as values
+listToMap | list of lists | map | creates a map based on a list in the format `[[key, value], [key, value], ...]`
 keyList | map `m` | list | creates a list containing all of the keys in `m`, in arbitrary order
 valList | map `m` | list | creates a list containing all of the values in `m`, in arbitrary order
 zip | list of lists `l` | list of lists | creates a new list where each item in the new list contains an item from each list in `l` (eg. `zip([[1, 2], [3, 4], [5, 6]])` = `[[1, 3, 5], [2, 4, 6]]`, this operation is also known as transposition)
+flatten | list with nested lists `l` | list | flattens all nested lists in `l` into one giant list
 nextPerm | list `l` | list | creates a new list representing the next lexicographical permutation of `l` (this can be used to loop through permutations, make sure the initial list is sorted so it is in the lowest state)
 maskList | list `l`, number `n` | list | using the bits in `n` (which needs to be an integer), find a subset of `l` (this can be used to find all subsets of a list, by looping through each number from `0` to `2 ** len(list)`)
 
@@ -361,8 +363,10 @@ shuffle | list `l` | list | creates a new list that is a random permutation of `
 Function | Parameters | Returns | Uses
 --- | --- | --- | ---
 map | list `l`, function `f` | list | applies `f` to each element in `l`, and creates a new list with the values produces by `f` (`f` should take two parameters for the index and the list element, `f` can optionally return a new value)
+deepMap | list `l`, function `f` | list | applies `f` to each element in `l` (and recursively traverses nested lists), and creates a new list with the values produces by `f` (`f` should take a parameter for the current list element, `f` can also optionally return a new value)
 filter | list `l`, function `f` | list | applies `f` to each element in `l`, and creates a list with elements that evaluate to true (non-zero value) when the `f` is called with it (`f` should take two parameters for the index and the list element, and it should return `0` if and only if the item should be removed)
 reduce | list `l`, function `f` | any object | applies the `f` cumulatively to pairs of elements in `l`, to produce a final result (`f` should accept two parameters and return a value based on those two parameters)
+deepReduce | list `l`, function `f` | any object | applies the `f` cumulatively to pairs of elements in `l` (and recursively traverses nested lists), to produce a final result (`f` should accept two parameters and return a value based on those two parameters)
 generateList | any object `o`, function `f1`, function `f2` | list | generates a list by starting with `o`, while `f1` does not produce a false value, call `f2` to generate a new value (f1 and f2 should accept two parameters, an index and the previously generated element)
 generate | any object `o`, function `f1`, function `f2` | any object | generates an object by starting with `o`, while `f1` does not produce a false value, call `f2` to generate a new value (f1 and f2 should accept two parameters, an index and the previously generated element), this function, unlike `generateList`, does not save intermediate values
 

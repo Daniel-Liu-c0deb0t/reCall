@@ -746,6 +746,25 @@ public class BuiltinFunctions{
 		}
 	};
 	
+	public static Function listToMap = (params) -> {
+		if(params.length != 1)
+			throw new IllegalArgumentException("Only 1 parameter(s) allowed!");
+		
+		if(params[0] instanceof reList){
+			HashMap<reObject, reObject> res = new HashMap<>();
+			ArrayList<reObject> arr = params[0].getListVal();
+			
+			for(reObject o : arr){
+				ArrayList<reObject> l = ((reList)o).getListVal();
+				res.put(l.get(0), l.get(1));
+			}
+			
+			return new reMap(res);
+		}else{
+			throw new IllegalArgumentException("Bad argument: \"" + params[0].toString() + "\"");
+		}
+	};
+	
 	public static Function randomInt = (params) -> {
 		if(params.length != 2)
 			throw new IllegalArgumentException("Only 2 parameter(s) allowed!");
@@ -953,6 +972,28 @@ public class BuiltinFunctions{
 		}
 	};
 	
+	public static Function deepMap = (params) -> {
+		if(params.length != 2)
+			throw new IllegalArgumentException("Only 2 parameter(s) allowed!");
+		
+		if(params[0] instanceof reList && params[1] instanceof reFunction){
+			ArrayList<reObject> res = new ArrayList<>();
+			ArrayList<reObject> val = params[0].getListVal();
+			for(reObject o : val){
+				reObject a = null;
+				if(o instanceof reList)
+					a = BuiltinFunctions.deepMap.apply(new reObject[]{o, params[1]});
+				else
+					a = ((reFunction)params[1]).apply(null, new reObject[]{o});
+				if(a != null)
+					res.add(a);
+			}
+			return new reList(res);
+		}else{
+			throw new IllegalArgumentException("Bad arguments: \"" + Utils.join(params, ", ", 0, true) + "\"");
+		}
+	};
+	
 	public static Function filter = (params) -> {
 		if(params.length != 2)
 			throw new IllegalArgumentException("Only 2 parameter(s) allowed!");
@@ -987,6 +1028,49 @@ public class BuiltinFunctions{
 			return res;
 		}else{
 			throw new IllegalArgumentException("Bad arguments: \"" + Utils.join(params, ", ", 0, true) + "\"");
+		}
+	};
+	
+	public static Function deepReduce = (params) -> {
+		if(params.length != 2)
+			throw new IllegalArgumentException("Only 2 parameter(s) allowed!");
+		
+		if(params[0] instanceof reList && params[1] instanceof reFunction){
+			reObject res = null;
+			ArrayList<reObject> val = params[0].getListVal();
+			for(reObject o : val){
+				reObject c = null;
+				if(o instanceof reList)
+					c = BuiltinFunctions.deepReduce.apply(new reObject[]{o, params[1]});
+				else
+					c = o;
+				if(res == null)
+					res = c;
+				else
+					res = ((reFunction)params[1]).apply(null, new reObject[]{res, c});
+			}
+			return res;
+		}else{
+			throw new IllegalArgumentException("Bad arguments: \"" + Utils.join(params, ", ", 0, true) + "\"");
+		}
+	};
+	
+	public static Function flatten = (params) -> {
+		if(params.length != 1)
+			throw new IllegalArgumentException("Only 1 parameter(s) allowed!");
+		
+		if(params[0] instanceof reList){
+			ArrayList<reObject> res = new ArrayList<>();
+			ArrayList<reObject> val = params[0].getListVal();
+			for(reObject o : val){
+				if(o instanceof reList)
+					res.addAll(((reList)BuiltinFunctions.flatten.apply(new reObject[]{o})).getListVal());
+				else
+					res.add(o);
+			}
+			return new reList(res);
+		}else{
+			throw new IllegalArgumentException("Bad argument: \"" + params[0].toString() + "\"");
 		}
 	};
 	
@@ -1363,6 +1447,7 @@ public class BuiltinFunctions{
 		functions.put("count", new DefaultFunction(count, "creates a map of each distinct element and the number of times it appears in the list"));
 		functions.put("keyList", new DefaultFunction(keyList, "creates a list containing all of the keys in a map"));
 		functions.put("valList", new DefaultFunction(valList, "creates a list containing all of the values in a map"));
+		functions.put("listToMap", new DefaultFunction(listToMap, "creates a map from a list"));
 		
 		functions.put("randInt", new DefaultFunction(randomInt, "returns a random integer"));
 		functions.put("randFloat", new DefaultFunction(randomFloat, "returns a random float"));
@@ -1377,8 +1462,11 @@ public class BuiltinFunctions{
 		functions.put("nextPerm", new DefaultFunction(nextPermutation, "gets next lexicographically larger permutation"));
 		functions.put("maskList", new DefaultFunction(maskList, "creates a sublist of a list using an integer mask"));
 		functions.put("map", new DefaultFunction(map, "maps a function to each item in the list"));
+		functions.put("deepMap", new DefaultFunction(deepMap, "maps a function to each item in a nested list"));
 		functions.put("filter", new DefaultFunction(filter, "use a function to determine whether to keep each item or not"));
 		functions.put("reduce", new DefaultFunction(reduce, "calculate some function for all items"));
+		functions.put("deepReduce", new DefaultFunction(deepReduce, "calculate some function for all items in a nested list"));
+		functions.put("flatten", new DefaultFunction(flatten, "flatten a nested list"));
 		functions.put("generate", new DefaultFunction(generate, "generates a value using the parameter function(s)"));
 		functions.put("generateList", new DefaultFunction(generateList, "generates a list using the parameter function(s)"));
 		functions.put("zip", new DefaultFunction(zip, "take one of every list, per list item (transpose)"));

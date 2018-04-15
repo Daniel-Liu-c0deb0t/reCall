@@ -70,10 +70,9 @@ public class reClassInst implements reObject, reMemberSelectable{
 	public String toString(){
 		ArrayList<String> pairs = new ArrayList<>();
 		for(String key : vars.keySet()){
-			String keyStr = key;
 			String valStr = vars.get(key) instanceof reString ?
 					("\"" + vars.get(key).toString() + "\"") : vars.get(key).toString();
-			pairs.add(keyStr + ": " + valStr);
+			pairs.add(key + ": " + valStr);
 		}
 		return c.name + ": {" + String.join(", ", pairs) + "}";
 	}
