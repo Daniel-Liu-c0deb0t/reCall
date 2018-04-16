@@ -257,10 +257,10 @@ Number | `1`, `2`, `100`, `3.14`, `3 + 3.5`, `1e-9` | Represents a floating poin
 String | `"Hello, world!"`, `"123"`, `"a" + "b"` | Represents a string of characters. | String behave like lists, but they are immutable.
 List | `[1, 2, 3]`, `[[1, 2], [3, 4]]`, `[1, 2] + [3, 4]`, `["hello", 1, 1.234]` | Represents a list objects that can be any type. | Lists can be changed using the `listName[index]` operation.
 Map | `{"hello": 1, 2: 3, 4: [1, 2, 3]}` | Represents key-value pairs, where each value can be accessed by its corresponding (unique) key. | Maps can be changed using the `mapName[key]` operation. The value can be omitted, in which case the dummy value of `0` will be used.
-File Reader | `reader = fileReader(...)` | Represents a file reader object for a file. | Look at the functions section for functions that act of a file reader.
-File Writer | `writer = fileWriter(...)` | Represents a file writer object for a file. | Look at the functions section for functions that act of a file writer.
+File Reader | `reader = FileReader(...)` | Represents a file reader object for a file. | Look at the functions section for functions that act of a file reader.
+File Writer | `writer = FileWriter(...)` | Represents a file writer object for a file. | Look at the functions section for functions that act of a file writer.
 Function | `square = (a) -> a * a` | Represents a function that can be called. | Functions can call itself to loop some code. However, the call stack size might get too big and the program can crash. This only happens when there are **a lot** of repeated function calls.
-Window | `win = window(...)` | Creates a rudimentary window that can be drawn on. | Drawing is very, very simple. For each pixel, the specified callback function is used to determine the color at that pixel.
+Window | `win = Window(...)` | Creates a rudimentary window that can be drawn on. | Drawing is very, very simple. For each pixel, the specified callback function is used to determine the color at that pixel.
 
 ---
 
