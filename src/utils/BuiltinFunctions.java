@@ -1471,14 +1471,14 @@ public class BuiltinFunctions{
 		functions.put("generateList", new DefaultFunction(generateList, "generates a list using the parameter function(s)"));
 		functions.put("zip", new DefaultFunction(zip, "take one of every list, per list item (transpose)"));
 		
-		functions.put("FileReader", new DefaultFunction(createFileReader, "creates a file reader"));
-		functions.put("FileWriter", new DefaultFunction(createFileWriter, "creates a file writer"));
+		functions.put("newFileReader", new DefaultFunction(createFileReader, "creates a file reader"));
+		functions.put("newFileWriter", new DefaultFunction(createFileWriter, "creates a file writer"));
 		functions.put("close", new DefaultFunction(closeFileIO, "closes a file reader or file writer"));
 		functions.put("write", new DefaultFunction(println, "writes/prints output"));
 		functions.put("read", new DefaultFunction(readLine, "reads input"));
 		functions.put("hasNext", new DefaultFunction(hasNextLine, "checks if the file has a next line"));
 		
-		functions.put("Window", new DefaultFunction(createWindow, "creates a new drawable window"));
+		functions.put("newWindow", new DefaultFunction(createWindow, "creates a new drawable window"));
 		functions.put("refresh", new DefaultFunction(refreshWindow, "refreshes/redraws a window"));
 		
 		//the function, eval(), is not listed here!

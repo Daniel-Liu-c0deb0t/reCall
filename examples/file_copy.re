@@ -1,7 +1,7 @@
 # recursive method
 
-reader = fileReader("test_in.txt")
-writer = fileWriter("test_out.txt")
+reader = newFileReader("test_in.txt")
+writer = newFileWriter("test_out.txt")
 
 write(reader + "") # must cast to string in this case
 write(writer + "")
@@ -24,8 +24,8 @@ write("File copy done!")
 
 # alternative functional method
 
-reader = fileReader("test_in.txt")
-writer = fileWriter("test_out.txt")
+reader = newFileReader("test_in.txt")
+writer = newFileWriter("test_out.txt")
 
 # this reads the whole file into an array!
 map(generateList(read(reader), (i, p) -> hasNext(reader), (i, p) -> read(reader)), (i, x) -> write(writer, x))

@@ -257,10 +257,10 @@ Number | `1`, `2`, `100`, `3.14`, `3 + 3.5`, `1e-9` | Represents a floating poin
 String | `"Hello, world!"`, `"123"`, `"a" + "b"` | Represents a string of characters. | String behave like lists, but they are immutable.
 List | `[1, 2, 3]`, `[[1, 2], [3, 4]]`, `[1, 2] + [3, 4]`, `["hello", 1, 1.234]` | Represents a list objects that can be any type. | Lists can be changed using the `listName[index]` operation.
 Map | `{"hello": 1, 2: 3, 4: [1, 2, 3]}` | Represents key-value pairs, where each value can be accessed by its corresponding (unique) key. | Maps can be changed using the `mapName[key]` operation. The value can be omitted, in which case the dummy value of `0` will be used.
-File Reader | `reader = FileReader(...)` | Represents a file reader object for a file. | Look at the functions section for functions that act of a file reader.
-File Writer | `writer = FileWriter(...)` | Represents a file writer object for a file. | Look at the functions section for functions that act of a file writer.
+File Reader | `reader = newFileReader(...)` | Represents a file reader object for a file. | Look at the functions section for functions that act on a file reader.
+File Writer | `writer = newFileWriter(...)` | Represents a file writer object for a file. | Look at the functions section for functions that act on a file writer.
 Function | `square = (a) -> a * a` | Represents a function that can be called. | Functions can call itself to loop some code. However, the call stack size might get too big and the program can crash. This only happens when there are **a lot** of repeated function calls.
-Window | `win = Window(...)` | Creates a rudimentary window that can be drawn on. | Drawing is very, very simple. For each pixel, the specified callback function is used to determine the color at that pixel.
+Window | `win = newWindow(...)` | Creates a rudimentary window that can be drawn on. | Drawing is very, very simple. For each pixel, the specified callback function is used to determine the color at that pixel.
 
 ---
 
@@ -375,15 +375,15 @@ Function | Parameters | Returns | Uses
 --- | --- | --- | ---
 write | any object... or file writer, any object... or string (path), string (format), window | nothing | either writes all parameters to the standard output stream, writes all parameters through a file writer to a file, or writes a window's image, in a specific format, to a file
 read | string `s` or file reader | string | either reads one line from the standard input stream after printing `s`, or reads one line from a file reader
-FileReader | string `path` | file reader | creates a file reader for the file denoted by `path`
-FileWriter | string `path` | file writer | creates a file writer for the file denoted by `path`
+newFileReader | string `path` | file reader | creates a file reader for the file denoted by `path`
+newFileWriter | string `path` | file writer | creates a file writer for the file denoted by `path`
 hasNext | file reader | boolean | checks if the file reader has another line
 close | file reader or file writer | nothing | closes a file reader or writer (this needs to be done!)
 
 ### Drawing Related Functions
 Function | Parameters | Returns | Uses
 --- | --- | --- | ---
-Window | string `title`, number `width`, number `height`, number `scale`, function `f` | window | creates a window of size `width`, `height`, where each pixel has size `scale`, and `f` is called for each pixel to determine its color (`f` should accept two parameters, the x and y values of the pixel, and it should return a list with three items containing the color of the pixel, which are from 0 to 255)
+newWindow | string `title`, number `width`, number `height`, number `scale`, function `f` | window | creates a window of size `width`, `height`, where each pixel has size `scale`, and `f` is called for each pixel to determine its color (`f` should accept two parameters, the x and y values of the pixel, and it should return a list with three items containing the color of the pixel, which are from 0 to 255)
 refresh | window | nothing | tells the window to redraw
 
 ### Regex
