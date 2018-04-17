@@ -228,7 +228,7 @@ C.f = () ->
 ```
 `.` can be used to access members (any variables) within a class. If the class name is used to access a member, then that member has to be static. Otherwise, an instance of the class is needed.
 
-To construct a class, the class name can be called like a method, with all of the non-static variables as parameters, in order.
+To construct a class, the class name can be called like a method (a constructor), with all of the non-static variables as parameters, in the order they were defined.
 ```
 C = class -> a, b
 a = C(1, 2)
@@ -247,6 +247,7 @@ b = C(2)
 a.f() # writes 1
 b.f() # writes 2
 ```
+Defining variables or functions that are not present in the class is possible, and those variables will be created in the class. That means that completely empty classes can be created. A class can also have a custom constructor. The custom constructor is defined as a function in the class, with the same exact name as the class: `MyClass.MyClass = (a, b, c) ->`. The constructor needs to handle the initialization of all variables non-static, and it overrides the default constructor behavior.
 
 ---
 

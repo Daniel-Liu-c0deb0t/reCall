@@ -12,11 +12,15 @@ public class reClassInst implements reObject, reMemberSelectable{
 		this.c = c;
 		this.vars = new HashMap<>();
 		
-		if(vars.size() != c.varsInit.size())
-			throw new IllegalArgumentException("\"" + c.name + "\" only accepts " + c.varsInit.size() + " arguments!");
-		
-		for(int i = 0; i < vars.size(); i++){
-			this.vars.put(c.order.get(i), vars.get(i));
+		if(c.varsStatic.containsKey(c.name)){ //use custom constructor
+			((reFunction)c.varsStatic.get(c.name)).apply(this, vars.toArray(new reObject[vars.size()]));
+		}else{
+			if(vars.size() != c.varsInit.size())
+				throw new IllegalArgumentException("\"" + c.name + "\" only accepts " + c.varsInit.size() + " arguments!");
+			
+			for(int i = 0; i < vars.size(); i++){
+				this.vars.put(c.order.get(i), vars.get(i));
+			}
 		}
 	}
 	
@@ -45,10 +49,8 @@ public class reClassInst implements reObject, reMemberSelectable{
 	public void set(String s, reObject o){
 		if(c.varsStatic.containsKey(s))
 			c.varsStatic.put(s, o);
-		else if(vars.containsKey(s))
-			vars.put(s, o);
 		else
-			throw new IllegalArgumentException("The variable, \"" + s + "\", is not found!");
+			vars.put(s, o);
 	}
 	
 	@Override

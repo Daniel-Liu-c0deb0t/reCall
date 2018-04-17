@@ -48,10 +48,7 @@ public class reClass implements reObject, reMemberSelectable{
 	
 	@Override
 	public void set(String s, reObject o){
-		if(varsStatic.containsKey(s))
-			varsStatic.put(s, o);
-		else
-			throw new IllegalArgumentException("The variable, \"" + s + "\", is not found!");
+		varsStatic.put(s, o);
 	}
 	
 	@Override
