@@ -370,7 +370,7 @@ deepReduce | [any object `o`,] list `l`, function `f` | any object | Applies the
 generateList | [any object `o`,] (function `f1` or integer), function `f2` | list | Generates a list by starting with `o`, while `f1` does not produce a false value, call `f2` to generate a new value (f1 and f2 should accept two parameters, an index and the previously generated element). If the first parameter is omitted, then the function generates values by repeatedly calling `f2` while `f1` returns true (both functions will only accept one parameter, an index). If the second parameter is an integer instead of a function, `f2` will only be used to generate `n` items.
 generate | [any object `o`,] (function `f1` or integer `n`), function `f2` | any object | Generates an object by starting with `o`, while `f1` does not produce a false value, call `f2` to generate a new value (f1 and f2 should accept two parameters, an index and the previously generated element), this function, unlike `generateList`, does not save intermediate values. If the first parameter is omitted, then the function generates values by repeatedly calling `f2` while `f1` returns true (both functions will only accept one parameter, an index). If the second parameter is an integer instead of a function, `f2` will only be used to generate items `n` times.
 
-For more example recipes, take a look at [this](https://github.com/Daniel-Liu-c0deb0t/reCall/blob/master/examples/file_copy.re) source file.
+For more example recipes, take a look at [this](https://github.com/Daniel-Liu-c0deb0t/reCall/blob/master/examples/functional_examples.re) source file.
 
 ### IO Related Functions
 Function | Parameters | Returns | Uses
