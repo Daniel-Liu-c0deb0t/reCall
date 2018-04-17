@@ -33,7 +33,9 @@ public class Operators{
 		operators.add(new Symbol("<", 5, false, false, cmpLess, "less than"));
 		operators.add(new Symbol(">=", 5, false, false, cmpGreaterEq, "greater than or equal to"));
 		operators.add(new Symbol("<=", 5, false, false, cmpLessEq, "less than or equal to"));
+		
 		operators.add(new Symbol("===", 5, false, false, instanceOf, "instance of"));
+		operators.add(new Symbol("!==", 5, false, false, notInstanceOf, "not instance of"));
 		
 		operators.add(new Symbol("==", 6, false, false, cmpEq, "equal to"));
 		operators.add(new Symbol("!=", 6, false, false, cmpNotEq, "not equal to"));

@@ -11,6 +11,11 @@ public class reClassInst implements reObject, reMemberSelectable{
 	public reClassInst(reClass c, ArrayList<reObject> vars){
 		this.c = c;
 		this.vars = new HashMap<>();
+		for(String key : c.varsInit.keySet()){
+			reObject val = c.varsInit.get(key);
+			if(val != null)
+				this.vars.put(key, val);
+		}
 		
 		if(c.varsStatic.containsKey(c.name)){ //use custom constructor
 			((reFunction)c.varsStatic.get(c.name)).apply(this, vars.toArray(new reObject[vars.size()]));

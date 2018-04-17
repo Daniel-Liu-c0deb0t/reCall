@@ -26,9 +26,19 @@ public class reClass implements reObject, reMemberSelectable{
 			}
 			this.varsStatic.put(str, o);
 		}
+		
 		order = new ArrayList<>(varsInit);
 		for(String s : varsInit){
-			this.varsInit.put(s, null);
+			int idxEq = s.indexOf('=');
+			String str = null;
+			reObject o = null;
+			if(idxEq != -1){
+				str = s.substring(0, idxEq);
+				o = Expression.recursiveCalc(s.substring(idxEq + 1), null, lineNum, lineNum, lineNum);
+			}else{
+				str = s;
+			}
+			this.varsInit.put(str, o);
 		}
 	}
 	

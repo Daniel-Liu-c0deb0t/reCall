@@ -274,6 +274,27 @@ public class BuiltinFunctions{
 		}
 	};
 	
+	public static Function notInstanceOf = (params) -> {
+		if(params[0] instanceof reList && params[1] instanceof reList){
+			ArrayList<reObject> a = params[0].getListVal();
+			ArrayList<reObject> b = params[1].getListVal();
+			boolean res = true;
+			for(int i = 0; i < a.size(); i++){
+				if(!a.get(i).getType().equals(b.get(i).getType())){
+					res = false;
+					break;
+				}
+			}
+			return new reNumber(res ? BigDecimal.ZERO : BigDecimal.ONE);
+		}else{
+			if(params[0].getType().equals(params[1].getType())){
+				return new reNumber(BigDecimal.ZERO);
+			}else{
+				return new reNumber(BigDecimal.ONE);
+			}
+		}
+	};
+	
 	public static Function consecutiveList = (params) -> {
 		BigDecimal a = ((reNumber)params[0]).val;
 		BigDecimal b = ((reNumber)params[1]).val;
