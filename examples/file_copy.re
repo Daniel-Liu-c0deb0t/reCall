@@ -28,7 +28,7 @@ reader = newFileReader("test_in.txt")
 writer = newFileWriter("test_out.txt")
 
 # this reads the whole file into an array!
-map(generateList(read(reader), (i, p) -> hasNext(reader), (i, p) -> read(reader)), (i, x) -> write(writer, x))
+map(generateList((i) -> hasNext(reader), (i) -> read(reader)), (i, x) -> write(writer, x))
 
 close(reader)
 close(writer)

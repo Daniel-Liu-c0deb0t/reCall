@@ -1013,45 +1013,72 @@ public class BuiltinFunctions{
 	};
 	
 	public static Function reduce = (params) -> {
-		if(params.length != 2)
-			throw new IllegalArgumentException("Only 2 parameter(s) allowed!");
-		
-		if(params[0] instanceof reList && params[1] instanceof reFunction){
-			reObject res = null;
-			ArrayList<reObject> val = params[0].getListVal();
-			for(reObject o : val){
-				if(res == null)
-					res = o;
-				else
-					res = ((reFunction)params[1]).apply(null, new reObject[]{res, o});
+		if(params.length == 2){
+			if(params[0] instanceof reList && params[1] instanceof reFunction){
+				reObject res = null;
+				ArrayList<reObject> val = params[0].getListVal();
+				for(reObject o : val){
+					if(res == null)
+						res = o;
+					else
+						res = ((reFunction)params[1]).apply(null, new reObject[]{res, o});
+				}
+				return res;
+			}else{
+				throw new IllegalArgumentException("Bad arguments: \"" + Utils.join(params, ", ", 0, true) + "\"");
 			}
-			return res;
+		}else if(params.length == 3){
+			if(params[1] instanceof reList && params[2] instanceof reFunction){
+				reObject res = params[0];
+				ArrayList<reObject> val = params[1].getListVal();
+				for(reObject o : val){
+					res = ((reFunction)params[2]).apply(null, new reObject[]{res, o});
+				}
+				return res;
+			}else{
+				throw new IllegalArgumentException("Bad arguments: \"" + Utils.join(params, ", ", 0, true) + "\"");
+			}
 		}else{
-			throw new IllegalArgumentException("Bad arguments: \"" + Utils.join(params, ", ", 0, true) + "\"");
+			throw new IllegalArgumentException("Only 2 or 3 parameter(s) allowed!");
 		}
 	};
 	
 	public static Function deepReduce = (params) -> {
-		if(params.length != 2)
-			throw new IllegalArgumentException("Only 2 parameter(s) allowed!");
-		
-		if(params[0] instanceof reList && params[1] instanceof reFunction){
-			reObject res = null;
-			ArrayList<reObject> val = params[0].getListVal();
-			for(reObject o : val){
-				reObject c = null;
-				if(o instanceof reList)
-					c = BuiltinFunctions.deepReduce.apply(new reObject[]{o, params[1]});
-				else
-					c = o;
-				if(res == null)
-					res = c;
-				else
-					res = ((reFunction)params[1]).apply(null, new reObject[]{res, c});
+		if(params.length == 2){
+			if(params[0] instanceof reList && params[1] instanceof reFunction){
+				reObject res = null;
+				ArrayList<reObject> val = params[0].getListVal();
+				for(reObject o : val){
+					reObject c = null;
+					if(o instanceof reList)
+						c = BuiltinFunctions.deepReduce.apply(new reObject[]{o, params[1]});
+					else
+						c = o;
+					if(res == null)
+						res = c;
+					else
+						res = ((reFunction)params[1]).apply(null, new reObject[]{res, c});
+				}
+				return res;
+			}else{
+				throw new IllegalArgumentException("Bad arguments: \"" + Utils.join(params, ", ", 0, true) + "\"");
 			}
-			return res;
+		}else if(params.length == 3){
+			if(params[1] instanceof reList && params[2] instanceof reFunction){
+				reObject res = params[0];
+				ArrayList<reObject> val = params[1].getListVal();
+				for(reObject o : val){
+					if(o instanceof reList)
+						res = BuiltinFunctions.deepReduce.apply(new reObject[]{res, o, params[2]});
+					else
+						res = ((reFunction)params[2]).apply(null, new reObject[]{res, o});
+				}
+				return res;
+			}else{
+				throw new IllegalArgumentException("Bad arguments: \"" + Utils.join(params, ", ", 0, true) + "\"");
+			}
 		}else{
-			throw new IllegalArgumentException("Bad arguments: \"" + Utils.join(params, ", ", 0, true) + "\"");
+			throw new IllegalArgumentException("Only 2 or 3 parameter(s) allowed!");
 		}
 	};
 	
@@ -1075,58 +1102,104 @@ public class BuiltinFunctions{
 	};
 	
 	public static Function generate = (params) -> {
-		if(params.length != 3)
-			throw new IllegalArgumentException("Only 3 parameter(s) allowed!");
-		
-		if(params[1] instanceof reNumber && params[2] instanceof reFunction){
-			reObject curr = params[0];
-			int n = ((reNumber)params[1]).val.intValueExact(); //should fit!
-			for(int i = 1; i < n; i++){
-				curr = ((reFunction)params[2]).apply(null,
-						new reObject[]{new reNumber(new BigDecimal(i)), curr});
+		if(params.length == 2){
+			if(params[0] instanceof reNumber && params[1] instanceof reFunction){
+				reObject curr = null;
+				int n = ((reNumber)params[0]).val.intValueExact(); //should fit!
+				for(int i = 0; i < n; i++){
+					curr = ((reFunction)params[1]).apply(null,
+							new reObject[]{new reNumber(new BigDecimal(i))});
+				}
+				return curr;
+			}else if(params[0] instanceof reFunction && params[1] instanceof reFunction){
+				reObject curr = null;
+				int i = 0;
+				while(((reFunction)params[0]).apply(null,
+						new reObject[]{new reNumber(new BigDecimal(i))}).toBool() != 0){
+					curr = ((reFunction)params[1]).apply(null,
+							new reObject[]{new reNumber(new BigDecimal(i))});
+					i++;
+				}
+				return curr;
+			}else{
+				throw new IllegalArgumentException("Bad arguments: \"" + Utils.join(params, ", ", 0, true) + "\"");
 			}
-			return curr;
-		}else if(params[1] instanceof reFunction && params[2] instanceof reFunction){
-			reObject curr = params[0];
-			int i = 1;
-			while(((reFunction)params[1]).apply(null,
-					new reObject[]{new reNumber(new BigDecimal(i)), curr}).toBool() != 0){
-				curr = ((reFunction)params[2]).apply(null,
-						new reObject[]{new reNumber(new BigDecimal(i)), curr});
-				i++;
+		}else if(params.length == 3){
+			if(params[1] instanceof reNumber && params[2] instanceof reFunction){
+				reObject curr = params[0];
+				int n = ((reNumber)params[1]).val.intValueExact(); //should fit!
+				for(int i = 1; i < n; i++){
+					curr = ((reFunction)params[2]).apply(null,
+							new reObject[]{new reNumber(new BigDecimal(i)), curr});
+				}
+				return curr;
+			}else if(params[1] instanceof reFunction && params[2] instanceof reFunction){
+				reObject curr = params[0];
+				int i = 1;
+				while(((reFunction)params[1]).apply(null,
+						new reObject[]{new reNumber(new BigDecimal(i)), curr}).toBool() != 0){
+					curr = ((reFunction)params[2]).apply(null,
+							new reObject[]{new reNumber(new BigDecimal(i)), curr});
+					i++;
+				}
+				return curr;
+			}else{
+				throw new IllegalArgumentException("Bad arguments: \"" + Utils.join(params, ", ", 0, true) + "\"");
 			}
-			return curr;
 		}else{
-			throw new IllegalArgumentException("Bad arguments: \"" + Utils.join(params, ", ", 0, true) + "\"");
+			throw new IllegalArgumentException("Only 2 or 3 parameter(s) allowed!");
 		}
 	};
 	
 	public static Function generateList = (params) -> {
-		if(params.length != 3)
-			throw new IllegalArgumentException("Only 3 parameter(s) allowed!");
-		
-		if(params[1] instanceof reNumber && params[2] instanceof reFunction){
-			ArrayList<reObject> res = new ArrayList<>();
-			res.add(params[0]);
-			int n = ((reNumber)params[1]).val.intValueExact(); //should fit!
-			for(int i = 1; i < n; i++){
-				res.add(((reFunction)params[2]).apply(null,
-						new reObject[]{new reNumber(new BigDecimal(i)), res.get(res.size() - 1)}));
+		if(params.length == 2){
+			if(params[0] instanceof reNumber && params[1] instanceof reFunction){
+				ArrayList<reObject> res = new ArrayList<>();
+				int n = ((reNumber)params[0]).val.intValueExact(); //should fit!
+				for(int i = 0; i < n; i++){
+					res.add(((reFunction)params[1]).apply(null,
+							new reObject[]{new reNumber(new BigDecimal(i))}));
+				}
+				return new reList(res);
+			}else if(params[0] instanceof reFunction && params[1] instanceof reFunction){
+				ArrayList<reObject> res = new ArrayList<>();
+				int i = 0;
+				while(((reFunction)params[0]).apply(null,
+						new reObject[]{new reNumber(new BigDecimal(i))}).toBool() != 0){
+					res.add(((reFunction)params[1]).apply(null,
+							new reObject[]{new reNumber(new BigDecimal(i))}));
+					i++;
+				}
+				return new reList(res);
+			}else{
+				throw new IllegalArgumentException("Bad arguments: \"" + Utils.join(params, ", ", 0, true) + "\"");
 			}
-			return new reList(res);
-		}else if(params[1] instanceof reFunction && params[2] instanceof reFunction){
-			ArrayList<reObject> res = new ArrayList<>();
-			res.add(params[0]);
-			int i = 1;
-			while(((reFunction)params[1]).apply(null,
-					new reObject[]{new reNumber(new BigDecimal(i)), res.get(res.size() - 1)}).toBool() != 0){
-				res.add(((reFunction)params[2]).apply(null,
-						new reObject[]{new reNumber(new BigDecimal(i)), res.get(res.size() - 1)}));
-				i++;
+		}else if(params.length == 3){
+			if(params[1] instanceof reNumber && params[2] instanceof reFunction){
+				ArrayList<reObject> res = new ArrayList<>();
+				res.add(params[0]);
+				int n = ((reNumber)params[1]).val.intValueExact(); //should fit!
+				for(int i = 1; i < n; i++){
+					res.add(((reFunction)params[2]).apply(null,
+							new reObject[]{new reNumber(new BigDecimal(i)), res.get(res.size() - 1)}));
+				}
+				return new reList(res);
+			}else if(params[1] instanceof reFunction && params[2] instanceof reFunction){
+				ArrayList<reObject> res = new ArrayList<>();
+				res.add(params[0]);
+				int i = 1;
+				while(((reFunction)params[1]).apply(null,
+						new reObject[]{new reNumber(new BigDecimal(i)), res.get(res.size() - 1)}).toBool() != 0){
+					res.add(((reFunction)params[2]).apply(null,
+							new reObject[]{new reNumber(new BigDecimal(i)), res.get(res.size() - 1)}));
+					i++;
+				}
+				return new reList(res);
+			}else{
+				throw new IllegalArgumentException("Bad arguments: \"" + Utils.join(params, ", ", 0, true) + "\"");
 			}
-			return new reList(res);
 		}else{
-			throw new IllegalArgumentException("Bad arguments: \"" + Utils.join(params, ", ", 0, true) + "\"");
+			throw new IllegalArgumentException("Only 2 or 3 parameter(s) allowed!");
 		}
 	};
 	
