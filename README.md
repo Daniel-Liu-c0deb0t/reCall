@@ -336,7 +336,7 @@ lowercase | string `s` | string | converts every character in `s` to lowercase
 Function | Parameters | Returns | Uses
 --- | --- | --- | ---
 len | list or map or string `c` | number | returns the length/size of `c`
-set | list `l`[, number `i`], any object `val` or map `m`[, any object `key`], any object `val` | list or map | sets element at index `i` (negative indexes start from the end) in `l` to `val`, or sets the value at `key` to `val` in `m`
+set | (list `l`, number `i`, any object `val`) or (map `m`, any object `key`, any object `val`) | list or map | sets element at index `i` (negative indexes start from the end) in `l` to `val`, or sets the value at `key` to `val` in `m`
 push | list `l`[, number `i`], any object `o` | list | adds `o` to the end of the list or inserts it at index `i` (negative indexes start from the end)
 pop | list `l`[, number `i`] | list | removes the last element in `l`, or removes the element at index `i` in `l` (negative indexes start from the end)
 contains | list or map or string `c`, any object `o` (only strings if the first parameter is string) | boolean | checks if `c` contains `o`
@@ -375,7 +375,7 @@ For more example recipes, take a look at [this](https://github.com/Daniel-Liu-c0
 ### IO Related Functions
 Function | Parameters | Returns | Uses
 --- | --- | --- | ---
-write | any object... or file writer, any object... or string (path), string (format), window | nothing | either writes all parameters to the standard output stream, writes all parameters through a file writer to a file, or writes a window's image, in a specific format, to a file
+write | (any object...) or (file writer, any object...) or (string `path`, string `format`, window) | nothing | either writes all parameters to the standard output stream, writes all parameters through a file writer to a file, or writes a window's image, in a specific format, to a file
 read | string `s` or file reader | string | either reads one line from the standard input stream after printing `s`, or reads one line from a file reader
 newFileReader | string `path` | file reader | creates a file reader for the file denoted by `path`
 newFileWriter | string `path` | file writer | creates a file writer for the file denoted by `path`
