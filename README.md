@@ -197,7 +197,7 @@ add = (a, b) -> # simple addition function
 ```
 When a return is encountered, the function will halt and return to where it was called from, ignoring any code that comes after within the function. Returns are required if functions that produces a value is needed.
 
-Lambda or inline functions are functions that can only take up one line of code in reCall, similar to the ternary operator. They can be encorporated into expressions or function calls. Lambda functions have an implicit return, so the `return` keyword is not needed at all. For example:
+Lambda or inline functions are functions that can only take up one line of code in reCall, similar to the ternary operator. They can be encorporated into expressions or function calls. Lambda functions have an implicit return, so the `return` keyword is not needed at all. Also, to call a lambda function that is not named within itself, use `lambda(a, b, c)`. Otherwise, the variable that contains the lambda function can be used, like for normal function calls. For example:
 ```
 f = (n) -> n + 1
 write(f(1)) # output: 2
