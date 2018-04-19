@@ -237,30 +237,19 @@ public class Expression implements Statement{
 		lIdx = -1;
 		count = 0;
 		isString = false;
-		for(int i = 0; i < s.length(); i++){
-			if(!isString && (s.charAt(i) == '[' || s.charAt(i) == '{')) count++;
-			else if(!isString && (s.charAt(i) == ']' || s.charAt(i) == '}')) count--;
-			else if(s.charAt(i) == '"') isString = !isString;
-			else if(!isString && count == 0){
-				if(s.charAt(i) == '('){
-					lIdx = i;
-					break;
-				}else if(s.charAt(i) == '=' || getOperatorStart(s.substring(i)) != null){
-					break;
-				}
+		for(int i = s.length() - 1; i >= 0; i--){
+			if(!isString && count == 1 && lIdx == -1 && s.charAt(i) == '('){
+				lIdx = i;
 			}
-		}
-		
-		count = 1;
-		isString = false;
-		for(int i = lIdx + 1; i < s.length() - 1; i++){
-			if(!isString && s.charAt(i) == '(') count++;
-			else if(!isString && s.charAt(i) == ')') count--;
+			if(!isString && count == 0 && (s.charAt(i) == '=' || getOperatorEnd(s.substring(0, i + 1)) != null)){
+				lIdx = -1;
+				break;
+			}else if(!isString && (s.charAt(i) == '(' || s.charAt(i) == '[' || s.charAt(i) == '{')) count--;
+			else if(!isString && (s.charAt(i) == ')' || s.charAt(i) == ']' || s.charAt(i) == '}')) count++;
 			else if(s.charAt(i) == '"') isString = !isString;
-			if(count == 0) break;
 		}
 		
-		if(lIdx > 0 && count > 0 && s.charAt(s.length() - 1) == ')'){
+		if(lIdx > 0 && s.charAt(s.length() - 1) == ')'){
 			String funcName = s.substring(0, lIdx);
 			Symbol symbol = getOperatorEnd(funcName);
 			reObject func = null;
@@ -282,8 +271,12 @@ public class Expression implements Statement{
 			if(isFuncName(funcName))
 				func = getVarByName(funcName, start, end);
 			else if(symbol == null && funcName.charAt(funcName.length() - 1) != '='){
-				container = (reClassInst)recursiveCalc(funcName.substring(0, idxDot), s, start, end, lineNum);
-				func = container.select(funcName.substring(idxDot + 1));
+				if(idxDot == -1){
+					func = recursiveCalc(funcName, s, start, end, lineNum);
+				}else{
+					container = (reClassInst)recursiveCalc(funcName.substring(0, idxDot), s, start, end, lineNum);
+					func = container.select(funcName.substring(idxDot + 1));
+				}
 			}
 			if(func != null || isFuncName(funcName)){
 				if(!funcName.equals("eval") && !(func instanceof reFunction) && !(func instanceof reClass)
@@ -326,35 +319,29 @@ public class Expression implements Statement{
 		
 		//handle member selectors for classes
 		count = 0;
-		int prevDot = 0;
+		int prevDot = -1;
 		isString = false;
-		reObject curr = null;
-		for(int i = 0; i <= s.length(); i++){
-			if(i == s.length() && curr == null) break;
+		for(int i = 0; i < s.length(); i++){
 			if(!isString && count == 0 && (getOperatorStart(s.substring(i)) != null
 					|| s.startsWith("=", i) || s.startsWith("?", i))){
-				curr = null;
+				prevDot = -1;
 				break;
 			}
-			if(i == s.length() ||
-					(!isString && count == 0 && s.charAt(i) == '.')){
-				String select = s.substring(prevDot, i);
-				if(curr == null || curr instanceof reMemberSelectable){
-					if(curr != null && isVarName(select)){
-						curr = ((reMemberSelectable)curr).select(select);
-					}else{
-						curr = recursiveCalc(select, s, start, end, lineNum);
-					}
-					prevDot = i + 1;
-				}else{
-					throw new IllegalArgumentException(s + " cannot be selected using the \".\" operator!");
-				}
+			if(!isString && count == 0 && s.charAt(i) == '.'){
+				prevDot = i;
 			}else if(s.charAt(i) == '"') isString = !isString;
 			else if(!isString && (s.charAt(i) == '(' || s.charAt(i) == '[' || s.charAt(i) == '{')) count++;
 			else if(!isString && (s.charAt(i) == ')' || s.charAt(i) == ']' || s.charAt(i) == '}')) count--;
 		}
-		if(curr != null)
-			return curr;
+		if(prevDot != -1){
+			String select = s.substring(prevDot + 1);
+			reObject curr = recursiveCalc(s.substring(0, prevDot), s, start, end, lineNum);
+			if(curr instanceof reMemberSelectable && isVarName(select)){
+				return ((reMemberSelectable)curr).select(select);
+			}else{
+				throw new IllegalArgumentException(s + " cannot be selected using the \".\" operator!");
+			}
+		}
 		
 		//handle inline functions
 		int rIdx = -1;
