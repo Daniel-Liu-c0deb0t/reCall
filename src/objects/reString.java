@@ -80,20 +80,18 @@ public class reString implements reArrayAccessible, Comparable<reString>{
 				arr.add(((reNumber)o).val.intValueExact());
 		}
 		
-		if(arr.size() > 0 && arr.get(0) == null) arr.set(0, 0);
-		if(arr.size() > 1 && arr.get(1) == null) arr.set(1, val.length());
-		if(arr.size() > 2 && arr.get(2) == null) arr.set(2, 1);
-		
-		for(int i = 0; i < arr.size(); i++){
-			if(arr.get(i) < 0){
+		for(int i = 0; i < Math.min(2, arr.size()); i++){
+			if(arr.get(i) != null && arr.get(i) < 0){
 				arr.set(i, arr.get(i) + val.length());
 			}
 		}
-		if(arr.size() > 1){
-			int temp = arr.get(0);
-			arr.set(0, Math.min(arr.get(0), arr.get(1)));
-			arr.set(1, Math.max(temp, arr.get(1)));
-		}
+		
+		if(arr.size() > 0 && arr.get(0) == null)
+			arr.set(0, arr.size() > 2 && arr.get(2) != null && arr.get(2) < 0 ? val.length() - 1 : 0);
+		if(arr.size() > 1 && arr.get(1) == null)
+			arr.set(1, arr.size() > 2 && arr.get(2) != null && arr.get(2) < 0 ? -1 : val.length());
+		if(arr.size() > 2 && arr.get(2) == null)
+			arr.set(2, 1);
 		
 		if(arr.size() == 1){
 			return new reString(val.charAt(arr.get(0)) + "");
@@ -101,7 +99,7 @@ public class reString implements reArrayAccessible, Comparable<reString>{
 			return new reString(val.substring(arr.get(0), arr.get(1)));
 		}else if(arr.size() == 3){
 			StringBuilder res = new StringBuilder();
-			for(int i = arr.get(0); i < arr.get(1); i += arr.get(2)){
+			for(int i = arr.get(0); arr.get(2) < 0 ? i > arr.get(1) : i < arr.get(1); i += arr.get(2)){
 				res.append(val.charAt(i));
 			}
 			return new reString(res.toString());
