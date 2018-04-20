@@ -46,7 +46,7 @@ public class reClassInst implements reObject, reMemberSelectable{
 		}else if(c.varsStatic.containsKey(s)){
 			return c.varsStatic.get(s);
 		}else{
-			throw new IllegalArgumentException(s + " cannot be selected using the \".\" operator!");
+			throw new IllegalArgumentException("\"" + s + "\" cannot be selected using the \".\" operator!");
 		}
 	}
 	

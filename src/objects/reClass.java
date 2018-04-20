@@ -52,7 +52,7 @@ public class reClass implements reObject, reMemberSelectable{
 		if(varsStatic.containsKey(s)){
 			return varsStatic.get(s);
 		}else{
-			throw new IllegalArgumentException(s + " cannot be selected using the \".\" operator!");
+			throw new IllegalArgumentException("\"" + s + "\" cannot be selected using the \".\" operator!");
 		}
 	}
 	

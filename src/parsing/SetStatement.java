@@ -153,7 +153,7 @@ public class SetStatement implements Statement{
 				if(o instanceof reMemberSelectable){
 					((reMemberSelectable)o).set(var.substring(idxDot + 1), res);
 				}else{
-					throw new IllegalArgumentException(var + " cannot be selected using the \".\" operator!");
+					throw new IllegalArgumentException("\"" + var + "\" cannot be selected using the \".\" operator!");
 				}
 			}
 		}

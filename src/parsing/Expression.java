@@ -339,7 +339,7 @@ public class Expression implements Statement{
 			if(curr instanceof reMemberSelectable && isVarName(select)){
 				return ((reMemberSelectable)curr).select(select);
 			}else{
-				throw new IllegalArgumentException(s + " cannot be selected using the \".\" operator!");
+				throw new IllegalArgumentException("\"" + s + "\" cannot be selected using the \".\" operator!");
 			}
 		}
 		
