@@ -132,6 +132,7 @@ s[1:-1] # "ello worl" negative indexes starts counting from the last element
 
 l[::2] # [1, 3, 5]
 l[:-2] # [1, 2, 3]
+l[::-1] # [5, 4, 3, 2, 1]
 ```
 Lists can be unpacked into variables. The length of the list and the number of variables must exactly match, or else and error will occur. Using the same syntax, multiple variables can also be set to the same value. For example:
 ```
