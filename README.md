@@ -271,6 +271,8 @@ Name | Value | Use
 --- | --- | ---
 PI | 3.1415... | 100 digits of PI... for fun?
 E | 2.7182... | 100 digits of E... for more fun?
+SRC_PATH | string | path to the source code file
+INTERPRETER_DIR | string | directory to the `.jar` interpreter
 
 ---
 
@@ -383,6 +385,10 @@ newFileReader | string `path` | file reader | creates a file reader for the file
 newFileWriter | string `path` | file writer | creates a file writer for the file denoted by `path`
 hasNext | file reader | boolean | checks if the file reader has another line
 close | file reader or file writer | nothing | closes a file reader or writer (this needs to be done!)
+flush | file writer | nothing | flushes a file writer
+delete | string | nothing | deletes a file
+
+Note that the default working directory is the directory of the source code file.
 
 ### Drawing Related Functions
 Function | Parameters | Returns | Uses
@@ -411,6 +417,7 @@ msToDate | number `t` | string | formats `t` into a date (`yyyy-MM-dd HH:mm:ss.S
 Function | Parameters | Returns | Uses
 --- | --- | --- | ---
 eval | string | any object | evaluates a single-line reCall **expression** and returns the value produced
+exec | string | nothing | executes a command-line command
 
 Note that none of the built-in functions changes the state of its parameters or anything outside of it. They are all "pure" functions that create copies with changes that happen!
 

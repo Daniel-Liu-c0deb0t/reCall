@@ -21,9 +21,11 @@ public class Main{
 			}
 		}
 		
-		if(srcFile == null)
+		if(srcFile == null){
 			System.out.println("Hi! This is the reCall interpreter!");
-		else
+		}else{
+			Persistent.init(Paths.get(srcFile).toAbsolutePath());
 			Interpreter.run(Interpreter.parse(new FileInputStream(srcFile)), 0, Integer.MAX_VALUE);
+		}
 	}
 }

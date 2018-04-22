@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.math.BigDecimal;
 import java.math.MathContext;
 import java.math.RoundingMode;
+import java.nio.file.Path;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -11,11 +12,13 @@ import java.util.HashMap;
 import objects.reClass;
 import objects.reNumber;
 import objects.reObject;
+import objects.reString;
 
 public class Persistent{
 	public static BufferedReader src, in;
 	public static ArrayDeque<StackItem> stack = new ArrayDeque<>();
 	public static int progLine;
+	public static Path workingDir;
 	
 	public static final RoundingMode defaultRounding = RoundingMode.HALF_EVEN;
 	public static final MathContext defaultMath = new MathContext(100, defaultRounding);
@@ -23,11 +26,15 @@ public class Persistent{
 	public static final BigDecimal constE = new BigDecimal("2.7182818284590452353602874713526624977572470936999595749669676277240766303535475945713821785251664274");
 	public static final BigDecimal constPI = new BigDecimal("3.1415926535897932384626433832795028841971693993751058209749445923078164062862089986280348253421170679");
 	
-	static{
+	public static void init(Path src){
 		stack.push(new StackItem(0, Integer.MAX_VALUE)); //includes all of the source code
 		
 		stack.peek().vars.put("E", new reNumber(constE));
 		stack.peek().vars.put("PI", new reNumber(constPI));
+		
+		workingDir = src.getParent();
+		stack.peek().vars.put("INTERPRETER_DIR", new reString(System.getProperty("user.dir")));
+		stack.peek().vars.put("SRC_PATH", new reString(src.toString()));
 		
 		stack.peek().vars.put("Number", new reClass("Number", new ArrayList<String>(), new ArrayList<String>(), -1));
 		stack.peek().vars.put("String", new reClass("String", new ArrayList<String>(), new ArrayList<String>(), -1));

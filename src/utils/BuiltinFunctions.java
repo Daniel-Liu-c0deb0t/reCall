@@ -1,10 +1,14 @@
 package utils;
 
-import java.io.File;
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.math.RoundingMode;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -19,6 +23,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import javax.imageio.ImageIO;
+
+import core.Persistent;
 
 import static core.Persistent.*;
 
@@ -528,8 +534,11 @@ public class BuiltinFunctions{
 		}else{
 			if(params.length == 3 && params[0] instanceof reString &&
 					params[1] instanceof reString && params[2] instanceof reWindow){
+				Path p = Paths.get(params[0].toString());
+				if(!p.isAbsolute())
+					p = Persistent.workingDir.resolve(p);
 				try{
-					ImageIO.write(((reWindow)params[2]).p.img, params[1].toString(), new File(params[0].toString()));
+					ImageIO.write(((reWindow)params[2]).p.img, params[1].toString(), p.toFile());
 				}catch(IOException e){
 					e.printStackTrace();
 				}
@@ -583,6 +592,43 @@ public class BuiltinFunctions{
 				((reCloseable)params[0]).close();
 			}catch(IOException e){
 				Utils.handleException(e, "An error occured while closing the file reader or writer!");
+			}
+		}else{
+			throw new IllegalArgumentException("Bad argument: \"" + params[0].toString() + "\"");
+		}
+		
+		return null;
+	};
+	
+	public static Function flushFileIO = (params) -> {
+		if(params.length != 1)
+			throw new IllegalArgumentException("Only 1 parameter(s) allowed!");
+		
+		if(params[0] instanceof reFileWriter){
+			try{
+				((reFileWriter)params[0]).flush();
+			}catch(IOException e){
+				Utils.handleException(e, "An error occured while flushing the file writer!");
+			}
+		}else{
+			throw new IllegalArgumentException("Bad argument: \"" + params[0].toString() + "\"");
+		}
+		
+		return null;
+	};
+	
+	public static Function deleteFile = (params) -> {
+		if(params.length != 1)
+			throw new IllegalArgumentException("Only 1 parameter(s) allowed!");
+		
+		if(params[0] instanceof reString){
+			Path p = Paths.get(params[0].toString());
+			if(!p.isAbsolute())
+				p = Persistent.workingDir.resolve(p);
+			try{
+				Files.deleteIfExists(p);
+			}catch(IOException e){
+				Utils.handleException(e, "An error occured while deleting a file!");
 			}
 		}else{
 			throw new IllegalArgumentException("Bad argument: \"" + params[0].toString() + "\"");
@@ -1506,6 +1552,29 @@ public class BuiltinFunctions{
 		}
 	};
 	
+	public static Function executeCmd = (params) -> {
+		if(params.length != 1)
+			throw new IllegalArgumentException("Only 1 parameter(s) allowed!");
+		
+		if(params[0] instanceof reString){
+			Runtime r = Runtime.getRuntime();
+			try{
+				Process p = r.exec(params[0].toString());
+				BufferedReader reader = new BufferedReader(new InputStreamReader(p.getInputStream()));
+				String line;
+				while((line = reader.readLine()) != null){
+					System.out.println(line);
+				}
+				reader.close();
+			}catch(IOException e){
+				Utils.handleException(e, "An error occured while executing a command!");
+			}
+			return null;
+		}else{
+			throw new IllegalArgumentException("Bad argument: \"" + params[0].toString() + "\"");
+		}
+	};
+	
 	public static HashMap<String, DefaultFunction> functions = new HashMap<>();
 	
 	static{
@@ -1568,6 +1637,8 @@ public class BuiltinFunctions{
 		functions.put("newFileReader", new DefaultFunction(createFileReader, "creates a file reader"));
 		functions.put("newFileWriter", new DefaultFunction(createFileWriter, "creates a file writer"));
 		functions.put("close", new DefaultFunction(closeFileIO, "closes a file reader or file writer"));
+		functions.put("flush", new DefaultFunction(flushFileIO, "flushes a file writer"));
+		functions.put("delete", new DefaultFunction(deleteFile, "deletes a file"));
 		functions.put("write", new DefaultFunction(println, "writes/prints output"));
 		functions.put("read", new DefaultFunction(readLine, "reads input"));
 		functions.put("hasNext", new DefaultFunction(hasNextLine, "checks if the file has a next line"));
@@ -1577,6 +1648,7 @@ public class BuiltinFunctions{
 		
 		//the function, eval(), is not listed here!
 		//it is separately handled!
+		functions.put("exec", new DefaultFunction(executeCmd, "executes a command-line command"));
 		
 		functions.put("regex", new DefaultFunction(regex, "converts a string to a regex"));
 		functions.put("replaceAll", new DefaultFunction(replace, "replaces all of occurrences of one string (can be regex) with another"));

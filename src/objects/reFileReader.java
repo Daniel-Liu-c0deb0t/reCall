@@ -3,9 +3,12 @@ package objects;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
+
+import core.Persistent;
 
 public class reFileReader implements reCloseable{
 	private BufferedReader reader;
@@ -14,7 +17,10 @@ public class reFileReader implements reCloseable{
 	
 	public reFileReader(String path) throws IOException{
 		this.path = path;
-		this.reader = Files.newBufferedReader(Paths.get(path));
+		Path p = Paths.get(path);
+		if(!p.isAbsolute())
+			p = Persistent.workingDir.resolve(p);
+		this.reader = Files.newBufferedReader(p);
 	}
 	
 	@Override
