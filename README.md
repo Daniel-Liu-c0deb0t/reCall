@@ -297,7 +297,7 @@ Precedance | Operators | Description | Details
 2 | <code>&#124;&#124;</code> | logical or | True if either side evaluates to true (non-zero) values. Note that this operator short circuits, so expressions separated by the or operator are evaluated from left to right, and if one expression is true, it stops evaluating the others.
 1 | `() ->` | lambda/inline function definition | Basically a single-line, condensed function.
 1 | `?` and `else` | ternary operator | Basically a single-line, condensed if/else statement.
-0 | `=` and variants (`+=`, `*=`, etc.) | set operator | sets a variable or a list/map item to some value | Example: `a += 1` = `a = a + 1` (Note that equals signs that appear within expressions have higher precedance than lambda functions and ternary operators to make writing code easier).
+0 | `=` and variants (`+=`, `*=`, etc.) | set operator | Sets a variable or a list/map item to some value. Example: `a += 1` = `a = a + 1` (Note that equals signs that appear within expressions have higher precedance than lambda functions and ternary operators to make writing code easier).
 
 Other than `=`, all other operators do no change the state of the object being operated on. A new object is created instead.
 
