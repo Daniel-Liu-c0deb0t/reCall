@@ -35,9 +35,6 @@ public class SetStatement implements Statement{
 	public static reObject calcSet(String var, String exp, int start, int end, int lineNum){
 		reObject res = Expression.recursiveCalc(exp, null, start, end, lineNum);
 		
-		if(res == null)
-			throw new IllegalArgumentException("The expression, \"" + exp + "\", does not return anything!");
-		
 		int count = 0;
 		int prev = 0;
 		boolean isString = false;
