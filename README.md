@@ -1,5 +1,5 @@
 # reCall
-Interpreter for reCall, a scripting language.
+Interpreter for reCall, a dynamically typed scripting language with object oriented and functional features.
 
 reCall is a dynamically typed language with imperative, object oriented, and functional capabilities. For and while loops are not supported, so only recursion and implicit loops can be used. Popular languages such as Java, C++, and Python inspired this project.
 
